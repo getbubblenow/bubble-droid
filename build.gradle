@@ -33,7 +33,7 @@ buildscript {
         groupName = 'com.wireguard.android'
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:$agpVersion"
+        classpath "com.android.tools.build:gradle:${agpVersion}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenPluginVersion"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayPluginVersion"
