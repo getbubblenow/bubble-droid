@@ -29,11 +29,12 @@ buildscript {
         streamsupportVersion = '1.7.2'
         threetenabpVersion = '1.2.4'
         zxingEmbeddedVersion = '3.6.0'
+        tunnelVersion = '1.0.20200407'
 
         groupName = 'com.wireguard.android'
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:$agpVersion"
+        classpath "com.android.tools.build:gradle:${agpVersion}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.github.dcendents:android-maven-gradle-plugin:$mavenPluginVersion"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayPluginVersion"
