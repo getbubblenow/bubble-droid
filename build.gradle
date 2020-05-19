@@ -29,6 +29,7 @@ buildscript {
         streamsupportVersion = '1.7.2'
         threetenabpVersion = '1.2.4'
         zxingEmbeddedVersion = '3.6.0'
+        tunnelVersion = '1.0.20200407'
 
         groupName = 'com.wireguard.android'
     }

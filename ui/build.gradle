@@ -65,6 +65,7 @@ android {
 }
 
 dependencies {
+    implementation "com.wireguard.android:tunnel:$tunnelVersion"
     implementation "androidx.annotation:annotation:$annotationsVersion"
     implementation "androidx.appcompat:appcompat:$appcompatVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
@@ -80,7 +81,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "net.sourceforge.streamsupport:android-retrofuture:$streamsupportVersion"
-    implementation 'com.wireguard.android:tunnel:1.0.20200407'
 }
 
 tasks.withType(JavaCompile) {
