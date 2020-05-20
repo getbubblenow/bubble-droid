@@ -81,6 +81,13 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
     implementation "net.sourceforge.streamsupport:android-retrofuture:$streamsupportVersion"
+    //Add for API Calls
+    implementation "com.squareup.okhttp3:logging-interceptor:$interceptorVersion"
+    implementation "jp.wasabeef:glide-transformations:$transformationVersion"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "org.greenrobot:eventbus:$eventbusVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$converterGsonVersion"
 }
 
 tasks.withType(JavaCompile) {

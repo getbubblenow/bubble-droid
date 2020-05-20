@@ -1,0 +1,51 @@
+/*
+ * Copyright © 2020 WireGuard LLC. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package com.wireguard.android.api.network;
+
+import com.wireguard.android.api.ApiConstants;
+import com.wireguard.android.api.interceptor.AcceptInterceptor;
+import com.wireguard.android.api.interceptor.UserAgentInterceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+public class ClientService {
+    private static volatile ClientService clientService = null;
+
+    private ClientService() {
+
+    }
+
+    public static ClientService getInstance() {
+        if (clientService == null) {
+            synchronized (ClientService.class) {
+                if (clientService == null) {
+                    clientService = new ClientService();
+                }
+            }
+        }
+        return clientService;
+    }
+
+
+    public ClientApi createClientApi() {
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        httpClient.addInterceptor(interceptor);
+
+        httpClient.addInterceptor(new AcceptInterceptor());
+        httpClient.addInterceptor(new UserAgentInterceptor(System.getProperty("http.agent")));
+
+        return new Retrofit.Builder()
+                .baseUrl(ApiConstants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build().create(ClientApi.class);
+    }
+}
