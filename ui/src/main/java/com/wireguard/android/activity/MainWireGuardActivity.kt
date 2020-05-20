@@ -23,7 +23,7 @@ import com.wireguard.android.model.ObservableTunnel
  * WireGuard application, and contains several fragments for listing, viewing details of, and
  * editing the configuration and interface state of WireGuard tunnels.
  */
-class MainActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener {
+class MainWireGuardActivity : BaseActivity(), FragmentManager.OnBackStackChangedListener {
     private var actionBar: ActionBar? = null
     private var isTwoPaneLayout = false
 
