@@ -31,9 +31,7 @@ buildscript {
         zxingEmbeddedVersion = '3.6.0'
         tunnelVersion = '1.0.20200407'
         interceptorVersion = '3.12.2'
-        transformationVersion = '3.3.0'
         gsonVersion = '2.8.6'
-        eventbusVersion = '3.1.1'
         retrofitVersion = '2.7.2'
         converterGsonVersion = '2.7.2'
 

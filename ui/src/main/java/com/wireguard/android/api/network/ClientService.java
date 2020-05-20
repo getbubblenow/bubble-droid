@@ -1,8 +1,3 @@
-/*
- * Copyright © 2020 WireGuard LLC. All Rights Reserved.
- * SPDX-License-Identifier: Apache-2.0
- */
-
 package com.wireguard.android.api.network;
 
 import com.wireguard.android.api.ApiConstants;
@@ -46,6 +41,7 @@ public class ClientService {
         return new Retrofit.Builder()
                 .baseUrl(ApiConstants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient.build())
                 .build().create(ClientApi.class);
     }
 }
