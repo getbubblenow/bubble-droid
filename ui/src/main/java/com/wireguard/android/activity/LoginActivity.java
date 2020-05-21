@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
@@ -53,13 +55,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status){
                     case SUCCESS:
+                        Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                        startActivity(intent);
+                        finish();
                         Log.d("TAG","Success");
                         break;
                     case LOADING:
                         Log.d("TAG","Loading");
                         break;
                     case ERROR:
+                        Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
                         Log.d("TAG","Error");
+                        break;
                 }
             }
         });
