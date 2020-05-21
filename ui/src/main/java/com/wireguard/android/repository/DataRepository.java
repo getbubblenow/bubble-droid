@@ -1,10 +1,14 @@
 package com.wireguard.android.repository;
 
+import android.content.Context;
+
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
+import com.wireguard.android.util.UserStore;
+
 import java.util.HashMap;
 import androidx.lifecycle.MutableLiveData;
 import retrofit2.Call;
@@ -35,13 +39,15 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(final HashMap<String, String> params){
+    public MutableLiveData<StatusResource<User>> login(final HashMap<String, String> params , Context context){
         return new NetworkBoundStatusResource<User>(){
 
             @Override protected void createCall() {
                 clientApi.login(params).enqueue(new Callback<User>() {
                     @Override public void onResponse(final Call<User> call, final Response<User> response) {
                         if(response.isSuccessful()) {
+                            String token = response.body().getToken();
+                            UserStore.getInstance(context).setUserResponse(token);
                             setMutableLiveData(StatusResource.success());
                         }
                         else {

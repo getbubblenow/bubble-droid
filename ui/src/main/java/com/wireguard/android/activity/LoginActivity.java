@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         final String inputPassword = password.getText().toString();
         data.put("username",username);
         data.put("password",inputPassword);
-        loginViewModel.login(data).observe(this, new Observer<StatusResource<User>>() {
+        loginViewModel.login(data,this).observe(this, new Observer<StatusResource<User>>() {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status){
                     case SUCCESS:
