@@ -91,6 +91,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
 
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleExtensionVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycleViewModelVersion"
 }
 
 tasks.withType(JavaCompile) {

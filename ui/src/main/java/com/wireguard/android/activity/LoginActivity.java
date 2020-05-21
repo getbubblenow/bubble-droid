@@ -25,12 +25,10 @@ public class LoginActivity extends AppCompatActivity {
     private TextView bubbleNameTitle;
     private TextView userNameTitle;
     private TextView passwordTitle;
-    private TextView question;
     private EditText bubbleName;
     private EditText userName;
     private EditText password;
     private Button sign;
-    private Button startNewBubble;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,11 +69,9 @@ public class LoginActivity extends AppCompatActivity {
         bubbleNameTitle = findViewById(R.id.bubbleNameTitle);
         userNameTitle = findViewById(R.id.userNameTitle);
         passwordTitle = findViewById(R.id.passwordTitle);
-        question = findViewById(R.id.question);
         bubbleName = findViewById(R.id.bubbleName);
         userName = findViewById(R.id.userName);
         password = findViewById(R.id.password);
         sign = findViewById(R.id.signButton);
-        startNewBubble = findViewById(R.id.startNewBubbleButton);
     }
 }
