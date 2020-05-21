@@ -22,6 +22,7 @@ import com.wireguard.android.backend.GoBackend
 import com.wireguard.android.backend.WgQuickBackend
 import com.wireguard.android.configStore.FileConfigStore
 import com.wireguard.android.model.TunnelManager
+import com.wireguard.android.repository.DataRepository
 import com.wireguard.android.util.AsyncWorker
 import com.wireguard.android.util.ExceptionLoggers
 import com.wireguard.android.util.ModuleLoader
@@ -59,6 +60,7 @@ class Application : android.app.Application(), OnSharedPreferenceChangeListener 
     override fun onCreate() {
         Log.i(TAG, USER_AGENT)
         super.onCreate()
+        DataRepository.buildRepositoryInstance()
         asyncWorker = AsyncWorker(AsyncTask.SERIAL_EXECUTOR, Handler(Looper.getMainLooper()))
         rootShell = RootShell(applicationContext)
         toolsInstaller = ToolsInstaller(applicationContext, rootShell)

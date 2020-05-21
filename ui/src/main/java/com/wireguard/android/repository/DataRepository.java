@@ -35,7 +35,7 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(final HashMap<String,String> params){
+    public MutableLiveData<StatusResource<User>> login(final HashMap<String, String> params){
         return new NetworkBoundStatusResource<User>(){
 
             @Override protected void createCall() {
