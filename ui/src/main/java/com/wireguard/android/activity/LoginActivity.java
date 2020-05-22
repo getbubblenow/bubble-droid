@@ -36,13 +36,17 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        initViews();
+        initUI();
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
                 login();
             }
         });
+    }
+
+    private void initUI() {
+        initViews();
     }
 
     private void initViews() {
