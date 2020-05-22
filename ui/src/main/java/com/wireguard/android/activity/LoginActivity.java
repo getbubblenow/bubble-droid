@@ -45,6 +45,16 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void initViews() {
+        bubbleNameTitle = findViewById(R.id.bubbleNameTitle);
+        userNameTitle = findViewById(R.id.userNameTitle);
+        passwordTitle = findViewById(R.id.passwordTitle);
+        bubbleName = findViewById(R.id.bubbleName);
+        userName = findViewById(R.id.userName);
+        password = findViewById(R.id.password);
+        sign = findViewById(R.id.signButton);
+    }
+
     private void login() {
         HashMap<String,String> data = new HashMap<>();
         final String username = userName.getText().toString().trim();
@@ -71,15 +81,5 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void initViews() {
-        bubbleNameTitle = findViewById(R.id.bubbleNameTitle);
-        userNameTitle = findViewById(R.id.userNameTitle);
-        passwordTitle = findViewById(R.id.passwordTitle);
-        bubbleName = findViewById(R.id.bubbleName);
-        userName = findViewById(R.id.userName);
-        password = findViewById(R.id.password);
-        sign = findViewById(R.id.signButton);
     }
 }
