@@ -73,4 +73,9 @@ public class DataRepository {
                 response.message();
     }
 
+    public boolean isUserLogin(Context context)
+    {
+        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getUserResponse());
+    }
+
 }
