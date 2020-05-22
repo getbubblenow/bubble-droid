@@ -103,9 +103,6 @@ public class LoginActivity extends AppCompatActivity {
                 switch (userStatusResource.status){
                     case SUCCESS:
                         Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                        startActivity(intent);
-                        finish();
                         Log.d("TAG","Success");
                         break;
                     case LOADING:
