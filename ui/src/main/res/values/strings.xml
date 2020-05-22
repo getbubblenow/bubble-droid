@@ -240,4 +240,5 @@
     <string name="not_connected">Not Connected</string>
     <string name="connect">Connect</string>
     <string name="disable_apps">Disable Apps</string>
+    <string name="turnInternet">Please turn on internet connection</string>
 </resources>
