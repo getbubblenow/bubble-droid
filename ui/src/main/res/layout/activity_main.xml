@@ -8,6 +8,7 @@
     tools:context="com.wireguard.android.activity.MainActivity">
 
     <TextView
+        android:id="@+id/myBubbleTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/my_bubble"
@@ -20,7 +21,7 @@
         app:layout_constraintVertical_bias="0.085" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/bubbleStatusTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bubble_status"
@@ -33,7 +34,7 @@
         app:layout_constraintVertical_bias="0.183" />
 
     <TextView
-        android:id="@+id/bubble_status"
+        android:id="@+id/bubbleStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/running"
@@ -46,6 +47,7 @@
         app:layout_constraintVertical_bias="0.183" />
 
     <TextView
+        android:id="@+id/deviceStatusTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/this_device_status"
@@ -58,7 +60,7 @@
         app:layout_constraintVertical_bias="0.255" />
 
     <TextView
-        android:id="@+id/device_status"
+        android:id="@+id/deviceStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/not_connected"
@@ -71,7 +73,7 @@
         app:layout_constraintVertical_bias="0.254" />
 
     <Button
-        android:id="@+id/connect_button"
+        android:id="@+id/connectButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="264dp"
@@ -81,14 +83,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/disable_apps_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="328dp"
-        android:text="@string/disable_apps"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

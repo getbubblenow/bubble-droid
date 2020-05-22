@@ -18,6 +18,7 @@ import retrofit2.Response;
 public class DataRepository {
     private static volatile DataRepository instance;
     private ClientApi clientApi;
+
     public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
 
     private DataRepository()
@@ -47,7 +48,7 @@ public class DataRepository {
                     @Override public void onResponse(final Call<User> call, final Response<User> response) {
                         if(response.isSuccessful()) {
                             String token = response.body().getToken();
-                            UserStore.getInstance(context).setUserResponse(token);
+                            UserStore.getInstance(context).setUserData(token);
                             setMutableLiveData(StatusResource.success());
                         }
                         else {
@@ -75,7 +76,7 @@ public class DataRepository {
 
     public boolean isUserLogin(Context context)
     {
-        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getUserResponse());
+        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getUserData());
     }
 
 }
