@@ -5,7 +5,7 @@ import com.wireguard.android.repository.DataRepository;
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
-    public boolean isUserLogin(Context context){
-        return DataRepository.getRepositoryInstance().isUserLogin(context);
+    public boolean isUserLoggedIn(Context context){
+        return DataRepository.getRepositoryInstance().isUserLoggedIn(context);
     }
 }

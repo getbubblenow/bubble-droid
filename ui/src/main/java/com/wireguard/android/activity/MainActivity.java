@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        if (mainViewModel.isUserLogin(this)) {
+        if (mainViewModel.isUserLoggedIn(this)) {
             setContentView(R.layout.activity_main);
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
