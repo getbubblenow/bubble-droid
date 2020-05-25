@@ -2,6 +2,7 @@ package com.wireguard.android.repository;
 
 import android.content.Context;
 
+import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
@@ -40,11 +41,14 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(final HashMap<String, String> params , Context context){
+    public MutableLiveData<StatusResource<User>> login(String username,String password , Context context){
         return new NetworkBoundStatusResource<User>(){
 
             @Override protected void createCall() {
-                clientApi.login(params).enqueue(new Callback<User>() {
+                HashMap<String,String> data = new HashMap<>();
+                data.put(ApiConstants.USERNAME,username);
+                data.put(ApiConstants.PASSWORD,password);
+                clientApi.login(data).enqueue(new Callback<User>() {
                     @Override public void onResponse(final Call<User> call, final Response<User> response) {
                         if(response.isSuccessful()) {
                             String token = response.body().getToken();

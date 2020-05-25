@@ -12,7 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 public class LoginViewModel extends ViewModel {
-    public LiveData<StatusResource<User>> login(HashMap<String,String> params, Context context){
-        return DataRepository.getRepositoryInstance().login(params,context);
+    public LiveData<StatusResource<User>> login(String username,String password, Context context){
+        return DataRepository.getRepositoryInstance().login(username,password,context);
     }
 }
