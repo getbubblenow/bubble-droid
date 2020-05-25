@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
+import com.wireguard.android.util.Constants;
 import com.wireguard.android.viewmodel.LoginViewModel;
 
 import java.util.HashMap;
@@ -66,8 +67,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login(String username, String password) {
         HashMap<String,String> data = new HashMap<>();
-        data.put("username",username);
-        data.put("password",password);
+        data.put(Constants.USERNAME,username);
+        data.put(Constants.PASSWORD,password);
         loginViewModel.login(data,this).observe(this, new Observer<StatusResource<User>>() {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status){
