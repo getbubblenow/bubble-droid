@@ -12,6 +12,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 
 
 /**
@@ -24,4 +25,7 @@ public interface ClientApi {
 
     @GET(ApiConstants.ALL_DEVICES_URL)
     Call<List<Device>> getAllDevices(@HeaderMap HashMap<String,String> header);
+
+    @PUT(ApiConstants.ADD_DEVICE_URL)
+    Call<Device> addDevice(@HeaderMap HashMap<String,String> header , @Body HashMap<String,String> body);
 }

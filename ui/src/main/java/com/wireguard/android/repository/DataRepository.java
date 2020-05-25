@@ -80,7 +80,7 @@ public class DataRepository {
             @Override protected void createCall() {
                 final String token = UserStore.getInstance(context).getToken();
                 final HashMap<String,String> header = new HashMap<>();
-                header.put("X-Bubble-Session",token);
+                header.put(ApiConstants.HEADER,token);
                 clientApi.getAllDevices(header).enqueue(new Callback<List<Device>>() {
                     @Override public void onResponse(final Call<List<Device>> call, final Response<List<Device>> response) {
                         if (response.isSuccessful()) {
@@ -93,6 +93,36 @@ public class DataRepository {
                     }
 
                     @Override public void onFailure(final Call<List<Device>> call, final Throwable t) {
+                        if (t instanceof Exception) {
+                            setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
+                        }
+                    }
+                });
+            }
+        }.getMutableLiveData();
+    }
+
+    public MutableLiveData<StatusResource<Device>> addDevice(String name ,Context context) {
+        return new NetworkBoundStatusResource<Device>() {
+
+            @Override protected void createCall() {
+                final String token = UserStore.getInstance(context).getToken();
+                final HashMap<String,String> header = new HashMap<>();
+                header.put(ApiConstants.HEADER,token);
+                final HashMap<String,String> body = new HashMap<>();
+                body.put(ApiConstants.DEVICE_NAME,name);
+                body.put(ApiConstants.DEVICE_TYPE,"android");
+                clientApi.addDevice(header, body).enqueue(new Callback<Device>() {
+                    @Override public void onResponse(final Call<Device> call, final Response<Device> response) {
+                        if (response.isSuccessful()) {
+                            setMutableLiveData(StatusResource.success());
+                        } else {
+                            String errorMessage = createErrorMessage(call, response);
+                            setMutableLiveData(StatusResource.error(errorMessage));
+                        }
+                    }
+
+                    @Override public void onFailure(final Call<Device> call, final Throwable t) {
                         if (t instanceof Exception) {
                             setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         }
