@@ -226,4 +226,19 @@
     <string name="biometric_prompt_private_key_title">Authenticate to view private key</string>
     <string name="biometric_auth_error">Authentication failure</string>
     <string name="biometric_auth_error_reason">Authentication failure: %s</string>
+    <!--Bubble constants-->
+    <string name="bubble_name">Bubble Name</string>
+    <string name="user_name">User Name:</string>
+    <string name="password">Password:</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="don_t_have_a_bubble">Don\'t have a Bubble?</string>
+    <string name="start_new_bubble">Start New Bubble</string>
+    <string name="my_bubble">My Bubble</string>
+    <string name="bubble_status">Bubble Status:</string>
+    <string name="running">Running</string>
+    <string name="this_device_status">This Device Status:</string>
+    <string name="not_connected">Not Connected</string>
+    <string name="connect">Connect</string>
+    <string name="disable_apps">Disable Apps</string>
+    <string name="turnInternet">Please turn on internet connection</string>
 </resources>

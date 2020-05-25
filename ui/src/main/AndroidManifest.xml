@@ -4,6 +4,7 @@
     package="com.wireguard.android"
     android:installLocation="internalOnly">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -35,39 +36,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity
-            android:name=".activity.TunnelToggleActivity"
-            android:theme="@style/NoBackgroundTheme" />
-
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".activity.LoginActivity" />
+        <activity
+            android:name=".activity.TunnelToggleActivity"
+            android:theme="@style/NoBackgroundTheme" />
+        <activity android:name=".activity.MainWireGuardActivity">
+            <!--TODO: Review if the filter is needed for the Bubble app"-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />-->
+<!--            </intent-filter>-->
+        </activity>
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/settings"
-            android:parentActivityName=".activity.MainActivity" />
-
+            android:parentActivityName=".activity.MainWireGuardActivity" />
         <activity
             android:name=".activity.TunnelCreatorActivity"
             android:label="@string/create_activity_title"
-            android:parentActivityName=".activity.MainActivity" />
-
+            android:parentActivityName=".activity.MainWireGuardActivity" />
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
-
         <activity
             android:name=".activity.LogViewerActivity"
             android:label="@string/log_viewer_title">
@@ -88,7 +85,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".model.TunnelManager$IntentReceiver"
             android:permission="${applicationId}.permission.CONTROL_TUNNELS">
@@ -103,7 +99,6 @@
             android:name=".QuickTileService"
             android:icon="@drawable/ic_tile"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -113,4 +108,5 @@
                 android:value="false" />
         </service>
     </application>
+
 </manifest>
