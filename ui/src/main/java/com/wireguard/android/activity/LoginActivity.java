@@ -35,14 +35,6 @@ public class LoginActivity extends AppCompatActivity {
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
     }
 
-    @Override protected void onStart() {
-        super.onStart();
-    }
-
-    @Override protected void onPause() {
-        super.onPause();
-    }
-
     private void initUI() {
         initViews();
         initListeners();
