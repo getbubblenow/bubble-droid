@@ -54,7 +54,9 @@ public class LoginActivity extends AppCompatActivity {
     private void initListeners() {
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
-                login();
+                final String username = userName.getText().toString().trim();
+                final String inputPassword = password.getText().toString().trim();
+                login(username,inputPassword);
             }
         });
     }
@@ -69,12 +71,10 @@ public class LoginActivity extends AppCompatActivity {
         sign = findViewById(R.id.signButton);
     }
 
-    private void login() {
+    private void login(String username, String password) {
         HashMap<String,String> data = new HashMap<>();
-        final String username = userName.getText().toString().trim();
-        final String inputPassword = password.getText().toString().trim();
         data.put("username",username);
-        data.put("password",inputPassword);
+        data.put("password",password);
         loginViewModel.login(data,this).observe(this, new Observer<StatusResource<User>>() {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status){
