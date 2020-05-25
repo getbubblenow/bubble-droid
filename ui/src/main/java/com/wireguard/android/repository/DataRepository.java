@@ -48,7 +48,7 @@ public class DataRepository {
                     @Override public void onResponse(final Call<User> call, final Response<User> response) {
                         if(response.isSuccessful()) {
                             String token = response.body().getToken();
-                            UserStore.getInstance(context).setUserData(token);
+                            UserStore.getInstance(context).setToken(token);
                             setMutableLiveData(StatusResource.success());
                         }
                         else {
@@ -76,7 +76,7 @@ public class DataRepository {
 
     public boolean isUserLoggedIn(Context context)
     {
-        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getUserData());
+        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getToken());
     }
 
 }

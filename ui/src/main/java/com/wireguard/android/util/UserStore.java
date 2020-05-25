@@ -27,11 +27,11 @@ public class UserStore {
         sharedPreferences = context.getSharedPreferences(USER_SHARED_PREF, Context.MODE_PRIVATE);
     }
 
-    public void setUserData(String response) {
+    public void setToken(String response) {
         sharedPreferences.edit().putString(USER_DATA_KEY, response).apply();
     }
 
-    public String getUserData() {
+    public String getToken() {
         return sharedPreferences.getString(USER_DATA_KEY, USER_TOKEN_DEFAULT_VALUE);
     }
 
