@@ -1,15 +1,9 @@
 package com.wireguard.android.activity;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
@@ -36,9 +29,6 @@ public class LoginActivity extends AppCompatActivity {
     private EditText userName;
     private EditText password;
     private Button sign;
-    private ConnectivityManager connectivityManager;
-    private ConnectivityManager.NetworkCallback mCallback;
-    private boolean isConnected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,36 +36,19 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initUI();
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-        connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        mCallback = new ConnectivityManager.NetworkCallback(){
-            @Override public void onAvailable(@NonNull final Network network) {
-                isConnected = true;
-            }
-
-            @Override public void onLost(@NonNull final Network network) {
-                isConnected = false;
-            }
-        };
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
-                if (isConnected) {
                     login();
-                } else {
-                    Toast.makeText(LoginActivity.this, getString(R.string.turnInternet), Toast.LENGTH_LONG).show();
-                }
             }
         });
     }
 
     @Override protected void onStart() {
         super.onStart();
-        final NetworkRequest request = new NetworkRequest.Builder().build();
-        connectivityManager.registerNetworkCallback(request,mCallback);
     }
 
     @Override protected void onPause() {
         super.onPause();
-        connectivityManager.unregisterNetworkCallback(mCallback);
     }
 
     private void initUI() {
