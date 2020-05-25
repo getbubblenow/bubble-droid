@@ -2,15 +2,19 @@ package com.wireguard.android.repository;
 
 import android.content.Context;
 
+import com.wireguard.android.activity.LoginActivity;
 import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
+import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.util.UserStore;
 
 import java.util.HashMap;
+import java.util.List;
+
 import androidx.lifecycle.MutableLiveData;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -71,6 +75,32 @@ public class DataRepository {
         }.getMutableLiveData();
     }
 
+    public MutableLiveData<StatusResource<Device>> getAllDevices(Context context) {
+        return new NetworkBoundStatusResource<Device>() {
+            @Override protected void createCall() {
+                final String token = UserStore.getInstance(context).getToken();
+                final HashMap<String,String> header = new HashMap<>();
+                header.put("X-Bubble-Session",token);
+                clientApi.getAllDevices(header).enqueue(new Callback<List<Device>>() {
+                    @Override public void onResponse(final Call<List<Device>> call, final Response<List<Device>> response) {
+                        if (response.isSuccessful()) {
+                            List<Device> list = response.body();
+                            setMutableLiveData(StatusResource.success());
+                        } else {
+                            String errorMessage = createErrorMessage(call, response);
+                            setMutableLiveData(StatusResource.error(errorMessage));
+                        }
+                    }
+
+                    @Override public void onFailure(final Call<List<Device>> call, final Throwable t) {
+                        if (t instanceof Exception) {
+                            setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
+                        }
+                    }
+                });
+            }
+        }.getMutableLiveData();
+    }
 
     private String createErrorMessage(Call call, retrofit2.Response response) {
         return "Error: User agent: " + System.getProperty("http.agent") + ", Request body: " + call.request().body() + ", URL: " +
