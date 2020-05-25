@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
@@ -22,9 +21,6 @@ import java.util.HashMap;
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
-    private TextView bubbleNameTitle;
-    private TextView userNameTitle;
-    private TextView passwordTitle;
     private EditText bubbleName;
     private EditText userName;
     private EditText password;
@@ -62,9 +58,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        bubbleNameTitle = findViewById(R.id.bubbleNameTitle);
-        userNameTitle = findViewById(R.id.userNameTitle);
-        passwordTitle = findViewById(R.id.passwordTitle);
         bubbleName = findViewById(R.id.bubbleName);
         userName = findViewById(R.id.userName);
         password = findViewById(R.id.password);
