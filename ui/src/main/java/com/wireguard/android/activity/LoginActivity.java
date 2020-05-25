@@ -36,11 +36,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         initUI();
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
-        sign.setOnClickListener(new OnClickListener() {
-            @Override public void onClick(final View v) {
-                    login();
-            }
-        });
     }
 
     @Override protected void onStart() {
@@ -53,6 +48,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initUI() {
         initViews();
+        initListeners();
+    }
+
+    private void initListeners() {
+        sign.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(final View v) {
+                login();
+            }
+        });
     }
 
     private void initViews() {
