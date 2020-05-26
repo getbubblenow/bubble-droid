@@ -21,7 +21,7 @@ public class LoginViewModel extends ViewModel {
         return DataRepository.getRepositoryInstance().getAllDevices(context);
     }
 
-    public LiveData<StatusResource<Device>> addDevice(String name, Context context){
-        return DataRepository.getRepositoryInstance().addDevice(name,context);
+    public LiveData<StatusResource<Device>> addDevice(Context context){
+        return DataRepository.getRepositoryInstance().addDevice(context);
     }
 }

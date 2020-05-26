@@ -4,6 +4,8 @@ package com.wireguard.android.activity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.wireguard.android.R;
 import com.wireguard.android.api.ApiConstants;
+import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.viewmodel.LoginViewModel;
@@ -62,7 +65,27 @@ public class LoginActivity extends AppCompatActivity {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status){
                     case SUCCESS:
-                        Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
+                        loginViewModel.addDevice(LoginActivity.this).observe(LoginActivity.this, new Observer<StatusResource<Device>>() {
+                            @Override public void onChanged(final StatusResource<Device> deviceStatusResource) {
+                                switch (deviceStatusResource.status){
+                                    case SUCCESS:
+                                        Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                        Log.d("TAG","Success");
+                                        break;
+                                    case LOADING:
+                                        Log.d("TAG","Loading");
+                                        break;
+                                    case ERROR:
+                                        Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
+                                        Log.d("TAG","Error");
+                                        break;
+                                }
+                            }
+                        });
+                       // Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
                         Log.d("TAG","Success");
                         break;
                     case LOADING:
