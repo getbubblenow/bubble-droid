@@ -70,9 +70,6 @@ public class LoginActivity extends AppCompatActivity {
                                 switch (deviceStatusResource.status){
                                     case SUCCESS:
                                         Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
-                                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intent);
                                         Log.d("TAG","Success");
                                         break;
                                     case LOADING:
