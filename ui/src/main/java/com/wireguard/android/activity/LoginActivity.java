@@ -67,35 +67,41 @@ public class LoginActivity extends AppCompatActivity {
     private void login(String username, String password) {
         loginViewModel.login(username,password,this).observe(this, new Observer<StatusResource<User>>() {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
-                switch (userStatusResource.status){
+                switch (userStatusResource.status) {
                     case SUCCESS:
-                        loginViewModel.addDevice(LoginActivity.this).observe(LoginActivity.this, new Observer<StatusResource<Device>>() {
-                            @Override public void onChanged(final StatusResource<Device> deviceStatusResource) {
-                                switch (deviceStatusResource.status){
-                                    case SUCCESS:
-                                        closeLoadingDialog();
-                                        Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
-                                        Log.d("TAG","Success");
-                                        break;
-                                    case LOADING:
-                                        Log.d("TAG","Loading");
-                                        break;
-                                    case ERROR:
-                                        Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
-                                        Log.d("TAG","Error");
-                                        break;
+                        if (loginViewModel.isDeviceLoggedIn(LoginActivity.this)) {
+                            Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                            Log.d("TAG", "Success");
+                            closeLoadingDialog();
+                        } else {
+                            loginViewModel.addDevice(LoginActivity.this).observe(LoginActivity.this, new Observer<StatusResource<Device>>() {
+                                @Override public void onChanged(final StatusResource<Device> deviceStatusResource) {
+                                    switch (deviceStatusResource.status) {
+                                        case SUCCESS:
+                                            closeLoadingDialog();
+                                            Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
+                                            Log.d("TAG", "Success");
+                                            break;
+                                        case LOADING:
+                                            Log.d("TAG", "Loading");
+                                            break;
+                                        case ERROR:
+                                            Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                                            Log.d("TAG", "Error");
+                                            break;
+                                    }
                                 }
-                            }
-                        });
-                        Log.d("TAG","Success");
-                        break;
-                    case LOADING:
-                        Log.d("TAG","Loading");
-                        break;
-                    case ERROR:
-                        Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
-                        Log.d("TAG","Error");
-                        break;
+                            });
+                        }
+                            Log.d("TAG", "Success");
+                            break;
+                            case LOADING:
+                                Log.d("TAG", "Loading");
+                                break;
+                            case ERROR:
+                                Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
+                                Log.d("TAG", "Error");
+                                break;
                 }
             }
         });

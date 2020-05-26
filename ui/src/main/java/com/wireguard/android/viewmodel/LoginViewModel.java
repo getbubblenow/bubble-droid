@@ -24,4 +24,8 @@ public class LoginViewModel extends ViewModel {
     public LiveData<StatusResource<Device>> addDevice(Context context){
         return DataRepository.getRepositoryInstance().addDevice(context);
     }
+
+    public boolean isDeviceLoggedIn(Context context){
+        return DataRepository.getRepositoryInstance().isDeviceLoggedIn(context);
+    }
 }

@@ -125,6 +125,7 @@ public class DataRepository {
                                         if(deviceNameItem.length>1){
                                             if(deviceNameItem[0].contains(myDeviceName[0]) && deviceNameItem[1].contains(myDeviceName[1])){
                                                 setMutableLiveData(StatusResource.success());
+                                                UserStore.getInstance(context).setDevice(device.getName());
                                                 flag = false;
                                                 break;
                                             }
@@ -148,6 +149,7 @@ public class DataRepository {
                                             clientApi.addDevice(header, body).enqueue(new Callback<Device>() {
                                                 @Override public void onResponse(final Call<Device> call, final Response<Device> response) {
                                                     if (response.isSuccessful()) {
+                                                        UserStore.getInstance(context).setDevice(response.body().getName());
                                                         setMutableLiveData(StatusResource.success());
                                                     } else {
                                                         final String errorMessage = createErrorMessage(call, response);
@@ -192,6 +194,7 @@ public class DataRepository {
                                                 clientApi.addDevice(header, body).enqueue(new Callback<Device>() {
                                                     @Override public void onResponse(final Call<Device> call, final Response<Device> response) {
                                                         if (response.isSuccessful()) {
+                                                            UserStore.getInstance(context).setDevice(response.body().getName());
                                                             setMutableLiveData(StatusResource.success());
                                                         } else {
                                                             final String errorMessage = createErrorMessage(call, response);
@@ -252,5 +255,9 @@ public class DataRepository {
 
     private String getDeviceModel(){
         return Build.MODEL;
+    }
+
+    public boolean isDeviceLoggedIn(Context context){
+        return !UserStore.DEVICE_DEFAULT_VALUE.equals(UserStore.getInstance(context).getDevice());
     }
 }
