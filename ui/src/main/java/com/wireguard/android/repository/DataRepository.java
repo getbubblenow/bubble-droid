@@ -80,7 +80,7 @@ public class DataRepository {
             @Override protected void createCall() {
                 final String token = UserStore.getInstance(context).getToken();
                 final HashMap<String,String> header = new HashMap<>();
-                header.put(ApiConstants.HEADER,token);
+                header.put(ApiConstants.AUTHORIZATION_HEADER,token);
                 clientApi.getAllDevices(header).enqueue(new Callback<List<Device>>() {
                     @Override public void onResponse(final Call<List<Device>> call, final Response<List<Device>> response) {
                         if (response.isSuccessful()) {
@@ -107,11 +107,11 @@ public class DataRepository {
             @Override protected void createCall() {
                         final String brand = getBrand();
                         final String model = getDeviceModel();
-                        final String imei = getDeviceIMEI(context);
+                        final String imei = getDeviceID(context);
                         final String deviceName = brand + " " + model + " " + ":" + " " + imei;
                         final String token = UserStore.getInstance(context).getToken();
                         final HashMap<String,String> header = new HashMap<>();
-                        header.put(ApiConstants.HEADER,token);
+                        header.put(ApiConstants.AUTHORIZATION_HEADER,token);
                         clientApi.getAllDevices(header).enqueue(new Callback<List<Device>>() {
                             @Override public void onResponse(final Call<List<Device>> call, final Response<List<Device>> response) {
                                 if (response.isSuccessful()) {
@@ -246,7 +246,7 @@ public class DataRepository {
         return Character.isUpperCase(first) ? brand : Character.toUpperCase(first) + brand.substring(1);
     }
 
-    private String getDeviceIMEI(final Context context) {
+    private String getDeviceID(final Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
     }
 

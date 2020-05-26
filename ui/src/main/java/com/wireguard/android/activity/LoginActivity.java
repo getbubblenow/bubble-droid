@@ -82,7 +82,6 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                         });
-                       // Toast.makeText(LoginActivity.this,"Success",Toast.LENGTH_SHORT).show();
                         Log.d("TAG","Success");
                         break;
                     case LOADING:
