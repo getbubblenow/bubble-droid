@@ -25,4 +25,6 @@
     <color name="error_tag_color">#aa0000</color>
     <color name="info_tag_color">#00aa00</color>
     <color name="warning_tag_color">#aaaa00</color>
+
+    <color name="colorPrimaryDark">#C04B26</color>
 </resources>
