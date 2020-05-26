@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.wireguard.android.R;
-import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.viewmodel.LoginViewModel;
@@ -59,32 +58,9 @@ public class LoginActivity extends BaseActivityBubble {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status) {
                     case SUCCESS:
-                        if (loginViewModel.isDeviceLoggedIn(LoginActivity.this)) {
                             Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
                             Log.d("TAG", "Success");
                             closeLoadingDialog();
-                        } else {
-                            loginViewModel.addDevice(LoginActivity.this).observe(LoginActivity.this, new Observer<StatusResource<Device>>() {
-                                @Override public void onChanged(final StatusResource<Device> deviceStatusResource) {
-                                    switch (deviceStatusResource.status) {
-                                        case SUCCESS:
-                                            closeLoadingDialog();
-                                            Toast.makeText(LoginActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                                            Log.d("TAG", "Success");
-                                            break;
-                                        case LOADING:
-                                            Log.d("TAG", "Loading");
-                                            break;
-                                        case ERROR:
-                                            closeLoadingDialog();
-                                            Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
-                                            Log.d("TAG", "Error");
-                                            break;
-                                    }
-                                }
-                            });
-                        }
-                            Log.d("TAG", "Success");
                             break;
                             case LOADING:
                                 Log.d("TAG", "Loading");
