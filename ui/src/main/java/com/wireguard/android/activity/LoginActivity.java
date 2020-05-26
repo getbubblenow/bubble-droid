@@ -1,12 +1,8 @@
 package com.wireguard.android.activity;
 
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -14,24 +10,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.wireguard.android.R;
-import com.wireguard.android.fragment.LoadingDialogFragment;
 import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.viewmodel.LoginViewModel;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivityBubble {
 
     private LoginViewModel loginViewModel;
     private EditText bubbleName;
     private EditText userName;
     private EditText password;
     private Button sign;
-
-    public static final String LOADING_TAG = "loading_tag";
-    private final long LOADER_DELAY = 1000;
-    private LoadingDialogFragment loadingDialog;
-    private boolean showDialog = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
                                             Log.d("TAG", "Loading");
                                             break;
                                         case ERROR:
+                                            closeLoadingDialog();
                                             Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                                             Log.d("TAG", "Error");
                                             break;
@@ -99,46 +90,12 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.d("TAG", "Loading");
                                 break;
                             case ERROR:
+                                closeLoadingDialog();
                                 Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                                 Log.d("TAG", "Error");
                                 break;
                 }
             }
         });
-    }
-    public void showLoadingDialog() {
-        showDialog = true;
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (showDialog) {
-                    if (loadingDialog == null
-                            || loadingDialog.getDialog() == null
-                            || !loadingDialog.getDialog().isShowing()
-                            || loadingDialog.isRemoving()) {
-                        if (loadingDialog != null) {
-                            loadingDialog.dismissAllowingStateLoss();
-                        }
-                        if (getLifecycle().getCurrentState() == Lifecycle.State.RESUMED) {
-                            loadingDialog = LoadingDialogFragment.newInstance();
-                            getSupportFragmentManager().beginTransaction().
-                                    add(loadingDialog, LOADING_TAG).commitAllowingStateLoss();
-                        }
-                    }
-                }
-            }
-
-        }, LOADER_DELAY);
-    }
-
-    public void closeLoadingDialog() {
-        showDialog = false;
-        if (loadingDialog != null && loadingDialog.getDialog() != null
-                && loadingDialog.getDialog().isShowing()
-                && !loadingDialog.isRemoving()) {
-            loadingDialog.dismissAllowingStateLoss();
-        }
     }
 }
