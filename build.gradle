@@ -38,6 +38,9 @@ buildscript {
         constraintlayoutVersion = '1.1.3'
         lifecycleExtensionVersion = '2.2.0'
         lifecycleViewModelVersion = '2.2.0'
+        rxandroidVersion = '2.0.1'
+        rxjavaVersion = '2.1.6'
+        adapterrxjava2Version = '2.3.0'
 
         groupName = 'com.wireguard.android'
     }
