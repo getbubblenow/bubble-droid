@@ -58,7 +58,7 @@ public class DataRepository {
                 HashMap<String, String> data = new HashMap<>();
                 data.put(ApiConstants.USERNAME, username);
                 data.put(ApiConstants.PASSWORD, password);
-                Disposable disposable = clientApi.login(data)
+                Disposable disposableLogin = clientApi.login(data)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(user -> {
@@ -72,14 +72,14 @@ public class DataRepository {
                         }, throwable -> {
                             setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
-                compositeDisposable.add(disposable);
+                compositeDisposable.add(disposableLogin);
             }
 
             private void getAllDevices(final Context context) {
                 final String token = UserStore.getInstance(context).getToken();
                 final HashMap<String,String> header = new HashMap<>();
                 header.put(ApiConstants.AUTHORIZATION_HEADER,token);
-                Disposable disposable1 =  clientApi.getAllDevices(header)
+                Disposable disposableAllDevices =  clientApi.getAllDevices(header)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(listDevices->{
@@ -97,7 +97,7 @@ public class DataRepository {
                         },throwable -> {
 
                         });
-                compositeDisposable.add(disposable1);
+                compositeDisposable.add(disposableAllDevices);
             }
 
             private void addDevice(final Context context) {
@@ -108,14 +108,14 @@ public class DataRepository {
                 final String token = UserStore.getInstance(context).getToken();
                 final HashMap<String, String> header = new HashMap<>();
                 header.put(ApiConstants.AUTHORIZATION_HEADER, token);
-                final Disposable disposable1 = clientApi.getAllDevices(header)
+                final Disposable disposableAllDevices = clientApi.getAllDevices(header)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(listDevices -> {
                             String brandModel = brand + SPACE + model + SPACE;
                             final List<Device> list = listDevices;
                             final List<String> arrayListDevicesName = new ArrayList<>();
-                            boolean isHaveDevice = false;
+                            boolean hasDevice = false;
                             for (final Device device : list) {
                                 final String[] deviceNameItem = device.getName().split(SEPARATOR);
                                 final String[] myDeviceName = deviceName.split(SEPARATOR);
@@ -123,7 +123,7 @@ public class DataRepository {
                                     if (deviceNameItem[ANDROID_ID].equals(myDeviceName[ANDROID_ID])) {
                                         UserStore.getInstance(context).setDeviceName(device.getName());
                                         UserStore.getInstance(context).setDeviceID(device.getUuid());
-                                        isHaveDevice = true;
+                                        hasDevice = true;
                                         setMutableLiveData(StatusResource.success());
                                         break;
                                     } else {
@@ -137,13 +137,13 @@ public class DataRepository {
 
                                 }
                             }
-                            if (!isHaveDevice) {
+                            if (!hasDevice) {
                                 if (arrayListDevicesName.isEmpty()) {
                                     brandModel = deviceName;
                                     final HashMap<String, String> body = new HashMap<>();
                                     body.put(ApiConstants.DEVICE_NAME, brandModel);
                                     body.put(ApiConstants.DEVICE_TYPE, "android");
-                                    final Disposable disposable2 = clientApi.addDevice(header, body)
+                                    final Disposable disposableAddDevice = clientApi.addDevice(header, body)
                                             .subscribeOn(Schedulers.newThread())
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribe(device -> {
@@ -153,7 +153,7 @@ public class DataRepository {
                                             }, throwable -> {
                                                 setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
-                                    compositeDisposable.add(disposable2);
+                                    compositeDisposable.add(disposableAddDevice);
                                 }
                                 else {
                                     for (int i = (arrayListDevicesName.size() - 1); i >= arrayListDevicesName.size() - 1; i--) {
@@ -183,7 +183,7 @@ public class DataRepository {
                                         final HashMap<String, String> body = new HashMap<>();
                                         body.put(ApiConstants.DEVICE_NAME, brandModel);
                                         body.put(ApiConstants.DEVICE_TYPE, "android");
-                                        Disposable disposable2 =    clientApi.addDevice(header,body)
+                                        Disposable disposableAddDevice = clientApi.addDevice(header,body)
                                                 .subscribeOn(Schedulers.newThread())
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(device -> {
@@ -193,14 +193,14 @@ public class DataRepository {
                                                 },throwable -> {
                                                     setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
-                                        compositeDisposable.add(disposable2);
+                                        compositeDisposable.add(disposableAddDevice);
                                     }
                                 }
                             }
                         }, throwable -> {
                             setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
-                compositeDisposable.add(disposable1);
+                compositeDisposable.add(disposableAllDevices);
             }
         }.getMutableLiveData();
     }
