@@ -83,15 +83,15 @@ public class DataRepository {
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(listDevices->{
-                            boolean flag = true;
+                            boolean hasDevice = false;
                             for (Device item : listDevices) {
                                 if (UserStore.getInstance(context).getDeviceID().equals(item.getUuid())) {
                                     setMutableLiveData(StatusResource.success());
-                                    flag = false;
+                                    hasDevice = true;
                                     break;
                                 }
                             }
-                            if(flag) {
+                            if(!hasDevice) {
                                 addDevice(context);
                             }
                         },throwable -> {
