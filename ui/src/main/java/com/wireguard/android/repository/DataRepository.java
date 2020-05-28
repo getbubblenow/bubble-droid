@@ -28,6 +28,9 @@ public class DataRepository {
     private CompositeDisposable compositeDisposable;
 
     public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
+    private static final String SEPARATOR = ":";
+    private static final String SPACE = " ";
+    private static final int ANDROID_ID = 1;
 
     private DataRepository() {
         clientApi = ClientService.getInstance().createClientApi();
@@ -101,7 +104,7 @@ public class DataRepository {
                 final String brand = getBrand();
                 final String model = getDeviceModel();
                 final String imei = getDeviceID(context);
-                final String deviceName = brand + " " + model + " " + ":" + " " + imei;
+                final String deviceName = brand + SPACE + model + SPACE + SEPARATOR + SPACE + imei;
                 final String token = UserStore.getInstance(context).getToken();
                 final HashMap<String, String> header = new HashMap<>();
                 header.put(ApiConstants.AUTHORIZATION_HEADER, token);
@@ -109,22 +112,22 @@ public class DataRepository {
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(listDevices -> {
-                            String brandModel = brand + " " + model + " ";
+                            String brandModel = brand + SPACE + model + SPACE;
                             final List<Device> list = listDevices;
                             final List<String> arrayListDevicesName = new ArrayList<>();
-                            boolean flag = true;
+                            boolean isHaveDevice = false;
                             for (final Device device : list) {
-                                final String[] deviceNameItem = device.getName().split(":");
-                                final String[] myDeviceName = deviceName.split(":");
+                                final String[] deviceNameItem = device.getName().split(SEPARATOR);
+                                final String[] myDeviceName = deviceName.split(SEPARATOR);
                                 if (deviceNameItem.length > 1) {
-                                    if (deviceNameItem[0].contains(myDeviceName[0]) && deviceNameItem[1].contains(myDeviceName[1])) {
+                                    if (deviceNameItem[ANDROID_ID].equals(myDeviceName[ANDROID_ID])) {
                                         UserStore.getInstance(context).setDeviceName(device.getName());
                                         UserStore.getInstance(context).setDeviceID(device.getUuid());
-                                        flag = false;
+                                        isHaveDevice = true;
                                         setMutableLiveData(StatusResource.success());
                                         break;
                                     } else {
-                                        final String[] itemDevice = device.getName().split(":");
+                                        final String[] itemDevice = device.getName().split(SEPARATOR);
                                         if (itemDevice.length != 1) {
                                             if (itemDevice[0].contains(brandModel)) {
                                                 arrayListDevicesName.add(itemDevice[0]);
@@ -134,7 +137,7 @@ public class DataRepository {
 
                                 }
                             }
-                            if (flag) {
+                            if (!isHaveDevice) {
                                 if (arrayListDevicesName.isEmpty()) {
                                     brandModel = deviceName;
                                     final HashMap<String, String> body = new HashMap<>();
@@ -157,7 +160,7 @@ public class DataRepository {
                                         if (arrayListDevicesName.get(i).contains(brandModel)) {
                                             final char[] arr = arrayListDevicesName.get(i).toCharArray();
                                             if (arr[arr.length - 2] != ')') {
-                                                brandModel += "(2)" + " " + ":" + " " + imei;
+                                                brandModel += "(2)" + SPACE + SEPARATOR + SPACE + imei;
                                             } else {
                                                 String countDevice = "";
                                                 int indexfirst = 0;
@@ -174,7 +177,7 @@ public class DataRepository {
                                                 countDevice += device.substring(indexfirst + 1, indexlast);
                                                 int count = Integer.parseInt(countDevice);
                                                 count++;
-                                                brandModel += "(" + count + ")" + " " + ":" + " " + imei;
+                                                brandModel += "(" + count + ")" + SPACE + SEPARATOR + SPACE + imei;
                                             }
                                         }
                                         final HashMap<String, String> body = new HashMap<>();
