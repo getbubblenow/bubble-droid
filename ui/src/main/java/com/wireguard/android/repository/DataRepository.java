@@ -12,20 +12,30 @@ import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.util.UserStore;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
+
 import androidx.lifecycle.MutableLiveData;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Call;
 
 public class DataRepository {
     private static volatile DataRepository instance;
     private ClientApi clientApi;
     private CompositeDisposable compositeDisposable;
+    private final OkHttpClient client = new OkHttpClient();
 
     public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
     private static final String SEPARATOR = ":";
@@ -124,7 +134,7 @@ public class DataRepository {
                                         UserStore.getInstance(context).setDeviceName(device.getName());
                                         UserStore.getInstance(context).setDeviceID(device.getUuid());
                                         hasDevice = true;
-                                        setMutableLiveData(StatusResource.success());
+                                        getConfig(context);
                                         break;
                                     } else {
                                         final String[] itemDevice = device.getName().split(SEPARATOR);
@@ -149,7 +159,7 @@ public class DataRepository {
                                             .subscribe(device -> {
                                                 UserStore.getInstance(context).setDeviceName(device.getName());
                                                 UserStore.getInstance(context).setDeviceID(device.getUuid());
-                                                setMutableLiveData(StatusResource.success());
+                                                getConfig(context);
                                             }, throwable -> {
                                                 setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
@@ -189,7 +199,7 @@ public class DataRepository {
                                                 .subscribe(device -> {
                                                     UserStore.getInstance(context).setDeviceName(device.getName());
                                                     UserStore.getInstance(context).setDeviceID(device.getUuid());
-                                                    setMutableLiveData(StatusResource.success());
+                                                    getConfig(context);
                                                 },throwable -> {
                                                     setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
@@ -201,6 +211,26 @@ public class DataRepository {
                             setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
+            }
+            private void getConfig(Context context){
+                final String deviceID = UserStore.getInstance(context).getDeviceID();
+                final String token = UserStore.getInstance(context).getToken();
+                Request request = new Request.Builder()
+                        .url(ApiConstants.BASE_URL+"me/devices/"+deviceID+"/vpn/vpn.conf")
+                        .addHeader(ApiConstants.AUTHORIZATION_HEADER,token)
+                        .build();
+                client.newCall(request).enqueue(new Callback() {
+                    @Override public void onFailure(final okhttp3.Call call, final IOException e) {
+                        setMutableLiveData(StatusResource.error(e.getMessage()));
+                    }
+
+                    @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
+                        final InputStream inputStream = response.body().byteStream();
+                        final Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+                        final String data = scanner.hasNext() ? scanner.next() : "";
+                        postMutableLiveData(StatusResource.success());
+                    }
+                });
             }
         }.getMutableLiveData();
     }

@@ -21,6 +21,10 @@ public abstract class NetworkBoundStatusResource<T> {
         mutableLiveData.setValue(value);
     }
 
+    public void postMutableLiveData(StatusResource<T> value) {
+        mutableLiveData.postValue(value);
+    }
+
     public final MutableLiveData<StatusResource<T>> getMutableLiveData() {
         return mutableLiveData;
     }
