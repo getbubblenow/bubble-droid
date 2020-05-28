@@ -11,4 +11,9 @@ public class LoginViewModel extends ViewModel {
     public LiveData<StatusResource<User>> login(String username,String password, Context context){
         return DataRepository.getRepositoryInstance().login(username,password,context);
     }
+
+    @Override protected void onCleared() {
+        super.onCleared();
+        DataRepository.getRepositoryInstance().clearDisposable();
+    }
 }

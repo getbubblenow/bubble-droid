@@ -7,6 +7,7 @@ import com.wireguard.android.model.User;
 import java.util.HashMap;
 import java.util.List;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -21,11 +22,11 @@ import retrofit2.http.PUT;
 public interface ClientApi {
 
     @POST(ApiConstants.LOGIN_URL)
-    Call<User> login(@Body HashMap<String,String> params);
+    Single<User> login(@Body HashMap<String,String> params);
 
     @GET(ApiConstants.ALL_DEVICES_URL)
-    Call<List<Device>> getAllDevices(@HeaderMap HashMap<String,String> header);
+    Single<List<Device>> getAllDevices(@HeaderMap HashMap<String,String> header);
 
     @PUT(ApiConstants.ADD_DEVICE_URL)
-    Call<Device> addDevice(@HeaderMap HashMap<String,String> header , @Body HashMap<String,String> body);
+    Single<Device> addDevice(@HeaderMap HashMap<String,String> header , @Body HashMap<String,String> body);
 }
