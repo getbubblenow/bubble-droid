@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import com.wireguard.android.R;
+import com.wireguard.android.activity.BaseActivityBubble;
 import com.wireguard.android.activity.LoginActivity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +33,7 @@ public class LoadingDialogFragment extends DialogFragment {
         final Dialog dialog = new Dialog(getActivity(), getTheme()) {
             @Override
             public void onBackPressed() {
-                if (getActivity().getSupportFragmentManager().findFragmentByTag(LoginActivity.LOADING_TAG) != null) {
+                if (getActivity().getSupportFragmentManager().findFragmentByTag(BaseActivityBubble.LOADING_TAG) != null) {
                     getActivity().onBackPressed();
                 }
                 super.onBackPressed();
