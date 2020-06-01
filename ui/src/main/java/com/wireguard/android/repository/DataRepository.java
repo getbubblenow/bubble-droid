@@ -5,6 +5,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 
+import com.wireguard.android.Application;
 import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
@@ -13,7 +14,9 @@ import com.wireguard.android.model.Device;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.util.UserStore;
+import com.wireguard.config.Config;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -63,7 +66,7 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(String username, String password, Context context) {
+    public MutableLiveData<StatusResource<User>> login(String tunnelName, String username, String password, Context context) {
         return new NetworkBoundStatusResource<User>() {
 
             @Override protected void createCall() {
@@ -229,7 +232,27 @@ public class DataRepository {
                         final InputStream inputStream = response.body().byteStream();
                         final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                         final String data = scanner.hasNext() ? scanner.next() : "";
-                        postMutableLiveData(StatusResource.success());
+                        parseConfig(data);
+                    }
+                });
+            }
+
+            private void parseConfig(String data) {
+                try {
+                    final byte[] configText = data.getBytes();
+                    final Config config = Config.parse(new ByteArrayInputStream(configText));
+                    createTunnel(config, tunnelName);
+                } catch (Exception e) {
+                    postMutableLiveData(StatusResource.error(e.getMessage()));
+                }
+            }
+
+            private void createTunnel(Config config, String tunnelName) {
+                Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
+                    if (observableTunnel != null) {
+                        setMutableLiveData(StatusResource.success());
+                    } else {
+                        setMutableLiveData(StatusResource.error(throwable.getMessage()));
                     }
                 });
             }
