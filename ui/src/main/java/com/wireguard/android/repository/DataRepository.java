@@ -1,6 +1,7 @@
 package com.wireguard.android.repository;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
@@ -10,10 +11,17 @@ import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
+import com.wireguard.android.backend.GoBackend;
+import com.wireguard.android.backend.Tunnel.State;
+import com.wireguard.android.configStore.FileConfigStore;
 import com.wireguard.android.model.Device;
+import com.wireguard.android.model.ObservableTunnel;
+import com.wireguard.android.model.TunnelManager;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
+import com.wireguard.android.util.TunnelStore;
 import com.wireguard.android.util.UserStore;
+import com.wireguard.config.BadConfigException;
 import com.wireguard.config.Config;
 
 import java.io.ByteArrayInputStream;
@@ -241,15 +249,17 @@ public class DataRepository {
                 try {
                     final byte[] configText = data.getBytes();
                     final Config config = Config.parse(new ByteArrayInputStream(configText));
-                    createTunnel(config, tunnelName);
+                    createTunnel(config, tunnelName, data);
                 } catch (Exception e) {
                     postMutableLiveData(StatusResource.error(e.getMessage()));
                 }
             }
 
-            private void createTunnel(Config config, String tunnelName) {
+            private void createTunnel(Config config, String tunnelName, String configString) {
                 Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
                     if (observableTunnel != null) {
+                        TunnelStore.getInstance(context).setTunnelName(tunnelName);
+                        TunnelStore.getInstance(context).setConfig(configString);
                         setMutableLiveData(StatusResource.success());
                     } else {
                         setMutableLiveData(StatusResource.error(throwable.getMessage()));
@@ -297,5 +307,25 @@ public class DataRepository {
 
     public void clearDisposable() {
         compositeDisposable.clear();
+    }
+
+
+    public ObservableTunnel getTunnel(Context context){
+        Config config = null;
+        try {
+            config = parseConfig(TunnelStore.getInstance(context).getConfig());
+        } catch (final IOException | BadConfigException e) {
+            e.printStackTrace();
+        }
+        final String name =  TunnelStore.getInstance(context).getTunnelName();
+        final TunnelManager tunnelManager = new TunnelManager(new FileConfigStore(context));
+        final ObservableTunnel tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        return tunnel;
+    }
+
+    private Config parseConfig(String data) throws IOException, BadConfigException {
+        final byte[] configText = data.getBytes();
+        final Config config = Config.parse(new ByteArrayInputStream(configText));
+        return config;
     }
 }
