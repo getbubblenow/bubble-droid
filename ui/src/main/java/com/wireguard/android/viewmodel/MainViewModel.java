@@ -6,12 +6,13 @@ import com.wireguard.android.model.ObservableTunnel;
 import com.wireguard.android.model.TunnelManager;
 import com.wireguard.android.repository.DataRepository;
 import com.wireguard.android.util.TunnelStore;
+import com.wireguard.android.util.UserStore;
 
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
     public boolean isUserLoggedIn(Context context){
-        return DataRepository.getRepositoryInstance().isUserLoggedIn(context);
+        return !UserStore.USER_TOKEN_DEFAULT_VALUE.equals(UserStore.getInstance(context).getToken());
     }
 
     public ObservableTunnel getTunnel(Context context, boolean stateTunnel) {
@@ -32,5 +33,13 @@ public class MainViewModel extends ViewModel {
 
     public void setConnectionState(final Context context, final boolean state, final String stateConnection){
         DataRepository.getRepositoryInstance().setConnectionState(context,state,stateConnection);
+    }
+
+    public void buildRepositoryInstance(Context context, String url){
+        DataRepository.buildRepositoryInstance(context,url);
+    }
+
+    public String getUserURL(Context context){
+        return UserStore.getInstance(context).getUserURL();
     }
 }

@@ -28,7 +28,7 @@ public class ClientService {
     }
 
 
-    public ClientApi createClientApi() {
+    public ClientApi createClientApi(String url) {
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -40,7 +40,7 @@ public class ClientService {
         httpClient.addInterceptor(new UserAgentInterceptor(System.getProperty("http.agent")));
 
         return new Retrofit.Builder()
-                .baseUrl(ApiConstants.BASE_URL)
+                .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(httpClient.build())

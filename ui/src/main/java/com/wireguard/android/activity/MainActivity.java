@@ -41,13 +41,14 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         initUI();
+        mainViewModel.buildRepositoryInstance(this,mainViewModel.getUserURL(this));
+        connectionStateFlag = mainViewModel.getConnectionState(this);
+        bubbleStatus.setText(mainViewModel.isBubbleConnected(this));
     }
 
     private void initUI() {
         initViews();
         initListeners();
-        connectionStateFlag = mainViewModel.getConnectionState(this);
-        bubbleStatus.setText(mainViewModel.isBubbleConnected(this));
     }
 
     private void initViews() {

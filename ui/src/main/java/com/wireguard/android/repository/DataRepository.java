@@ -53,18 +53,24 @@ public class DataRepository {
     private static final String SPACE = " ";
     private static final String DELIMITER = "\\A";
     private static final int ANDROID_ID = 1;
+    private static  String BASE_URL = "";
 
-    private DataRepository(Context context) {
-        clientApi = ClientService.getInstance().createClientApi();
+    private DataRepository(Context context,String url) {
+        BASE_URL = url;
+        clientApi = ClientService.getInstance().createClientApi(url);
         compositeDisposable = new CompositeDisposable();
         tunnelManager = new TunnelManager(new FileConfigStore(context));
     }
 
-    public static void buildRepositoryInstance(Context context) {
+    public static void buildRepositoryInstance(Context context, String url) {
+        if(url!=null){
+            instance = new DataRepository(context,url);
+            return;
+        }
         if (instance == null) {
             synchronized (DataRepository.class) {
                 if (instance == null) {
-                    instance = new DataRepository(context);
+                    instance = new DataRepository(context,url);
                 }
             }
         }
@@ -74,7 +80,7 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(String tunnelName, String username, String password, Context context) {
+    public MutableLiveData<StatusResource<User>> login(String username, String password, Context context) {
         return new NetworkBoundStatusResource<User>() {
 
             @Override protected void createCall() {
@@ -117,7 +123,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-
+                            setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -225,7 +231,7 @@ public class DataRepository {
                 final String deviceID = UserStore.getInstance(context).getDeviceID();
                 final String token = UserStore.getInstance(context).getToken();
                 Request request = new Request.Builder()
-                        .url(ApiConstants.BASE_URL + ApiConstants.CONFIG_DEVICE_URL + deviceID + ApiConstants.CONFIG_VPN_URL)
+                        .url(BASE_URL + ApiConstants.CONFIG_DEVICE_URL + deviceID + ApiConstants.CONFIG_VPN_URL)
                         .addHeader(ApiConstants.AUTHORIZATION_HEADER, token)
                         .build();
                 client.newCall(request).enqueue(new Callback() {
@@ -237,18 +243,18 @@ public class DataRepository {
                         final InputStream inputStream = response.body().byteStream();
                         final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                         final String data = scanner.hasNext() ? scanner.next() : "";
-                        createTunnel(data, tunnelName);
+                        createTunnel(data);
                     }
                 });
             }
 
-            private void createTunnel(String rawConfig, String tunnelName) {
+            private void createTunnel(final String rawConfig) {
                 try {
                     final byte[] configBytes = rawConfig.getBytes();
                     final Config config = Config.parse(new ByteArrayInputStream(configBytes));
-                    Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
+                    Application.getTunnelManager().create(ApiConstants.TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
                         if (observableTunnel != null) {
-                            TunnelStore.getInstance(context).setTunnel(tunnelName, rawConfig);
+                            TunnelStore.getInstance(context).setTunnel(ApiConstants.TUNNEL_NAME, rawConfig);
                             tunnelManager.setTunnelState(observableTunnel,State.DOWN);
                             setMutableLiveData(StatusResource.success());
                         } else {
@@ -344,5 +350,9 @@ public class DataRepository {
 
     public void setConnectionState(final Context context, final boolean state, final String stateConnection){
         TunnelStore.getInstance(context).setConnectionState(state,stateConnection);
+    }
+
+    public void setUserURL(Context context, String url){
+        UserStore.getInstance(context).setUserURL(url);
     }
 }

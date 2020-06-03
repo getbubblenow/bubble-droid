@@ -25,6 +25,9 @@ public class LoginActivity extends BaseActivityBubble {
     private EditText password;
     private Button sign;
 
+    private static final String HTTPS = "https://";
+    private static final String BUBBLE_API = ":1443/api/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +44,13 @@ public class LoginActivity extends BaseActivityBubble {
     private void initListeners() {
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
-                final String tunnelName = bubbleName.getText().toString().trim();
+                final String url = HTTPS + bubbleName.getText().toString() + BUBBLE_API;
+                loginViewModel.buildRepositoryInstance(LoginActivity.this,url);
+                loginViewModel.setUserURL(LoginActivity.this,url);
                 final String username = userName.getText().toString().trim();
                 final String password = LoginActivity.this.password.getText().toString().trim();
                 showLoadingDialog();
-                login(tunnelName, username, password);
+                login(username, password);
             }
         });
     }
@@ -57,8 +62,8 @@ public class LoginActivity extends BaseActivityBubble {
         sign = findViewById(R.id.signButton);
     }
 
-    private void login(String tunnelName, String username, String password) {
-        loginViewModel.login(tunnelName, username, password, this).observe(this, new Observer<StatusResource<User>>() {
+    private void login(String username, String password) {
+        loginViewModel.login(username, password, this).observe(this, new Observer<StatusResource<User>>() {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status) {
                     case SUCCESS:
