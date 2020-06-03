@@ -21,7 +21,6 @@ import com.wireguard.android.viewmodel.MainViewModel;
 public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
     private TextView bubbleStatus;
-    private TextView deviceStatus;
     private Button connectButton;
     public ObservableTunnel pendingTunnel;
     private Boolean pendingTunnelUp;
@@ -50,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initViews() {
         bubbleStatus = findViewById(R.id.bubbleStatus);
-        deviceStatus = findViewById(R.id.deviceStatus);
         connectButton = findViewById(R.id.connectButton);
     }
 

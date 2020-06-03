@@ -242,4 +242,5 @@
     <string name="disable_apps">Disable Apps</string>
     <string name="turnInternet">Please turn on internet connection</string>
     <string name="progress_bar_text">Loading</string>
+    <string name="not_connected_bubble">Not Connected</string>
 </resources>
