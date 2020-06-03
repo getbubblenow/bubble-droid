@@ -10,10 +10,16 @@ import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
+import com.wireguard.android.backend.Tunnel.State;
+import com.wireguard.android.configStore.FileConfigStore;
 import com.wireguard.android.model.Device;
+import com.wireguard.android.model.ObservableTunnel;
+import com.wireguard.android.model.TunnelManager;
 import com.wireguard.android.model.User;
 import com.wireguard.android.resource.StatusResource;
+import com.wireguard.android.util.TunnelStore;
 import com.wireguard.android.util.UserStore;
+import com.wireguard.config.BadConfigException;
 import com.wireguard.config.Config;
 
 import java.io.ByteArrayInputStream;
@@ -135,8 +141,7 @@ public class DataRepository {
                                 final String[] myDeviceName = deviceName.split(SEPARATOR);
                                 if (deviceNameItem.length > 1) {
                                     if (deviceNameItem[ANDROID_ID].equals(myDeviceName[ANDROID_ID])) {
-                                        UserStore.getInstance(context).setDeviceName(device.getName());
-                                        UserStore.getInstance(context).setDeviceID(device.getUuid());
+                                        UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                         hasDevice = true;
                                         getConfig(context);
                                         break;
@@ -161,8 +166,7 @@ public class DataRepository {
                                             .subscribeOn(Schedulers.newThread())
                                             .observeOn(AndroidSchedulers.mainThread())
                                             .subscribe(device -> {
-                                                UserStore.getInstance(context).setDeviceName(device.getName());
-                                                UserStore.getInstance(context).setDeviceID(device.getUuid());
+                                                UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                 getConfig(context);
                                             }, throwable -> {
                                                 setMutableLiveData(StatusResource.error(throwable.getMessage()));
@@ -200,8 +204,7 @@ public class DataRepository {
                                                 .subscribeOn(Schedulers.newThread())
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribe(device -> {
-                                                    UserStore.getInstance(context).setDeviceName(device.getName());
-                                                    UserStore.getInstance(context).setDeviceID(device.getUuid());
+                                                    UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                     getConfig(context);
                                                 }, throwable -> {
                                                     setMutableLiveData(StatusResource.error(throwable.getMessage()));
@@ -232,29 +235,26 @@ public class DataRepository {
                         final InputStream inputStream = response.body().byteStream();
                         final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                         final String data = scanner.hasNext() ? scanner.next() : "";
-                        parseConfig(data);
+                        createTunnel(data, tunnelName);
                     }
                 });
             }
 
-            private void parseConfig(String data) {
+            private void createTunnel(String rawConfig, String tunnelName) {
                 try {
-                    final byte[] configText = data.getBytes();
-                    final Config config = Config.parse(new ByteArrayInputStream(configText));
-                    createTunnel(config, tunnelName);
+                    final byte[] configBytes = rawConfig.getBytes();
+                    final Config config = Config.parse(new ByteArrayInputStream(configBytes));
+                    Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
+                        if (observableTunnel != null) {
+                            TunnelStore.getInstance(context).setTunnel(tunnelName, rawConfig);
+                            setMutableLiveData(StatusResource.success());
+                        } else {
+                            setMutableLiveData(StatusResource.error(throwable.getMessage()));
+                        }
+                    });
                 } catch (Exception e) {
                     postMutableLiveData(StatusResource.error(e.getMessage()));
                 }
-            }
-
-            private void createTunnel(Config config, String tunnelName) {
-                Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
-                    if (observableTunnel != null) {
-                        setMutableLiveData(StatusResource.success());
-                    } else {
-                        setMutableLiveData(StatusResource.error(throwable.getMessage()));
-                    }
-                });
             }
         }.getMutableLiveData();
     }
@@ -297,5 +297,26 @@ public class DataRepository {
 
     public void clearDisposable() {
         compositeDisposable.clear();
+    }
+
+
+    public ObservableTunnel getTunnel(Context context) {
+        //TODO implement config is null case
+        Config config = null;
+        try {
+            config = parseConfig(TunnelStore.getInstance(context).getConfig());
+        } catch (final IOException | BadConfigException e) {
+            return null;
+        }
+        final String name = TunnelStore.getInstance(context).getTunnelName();
+        final TunnelManager tunnelManager = new TunnelManager(new FileConfigStore(context));
+        final ObservableTunnel tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        return tunnel;
+    }
+
+    private Config parseConfig(String data) throws IOException, BadConfigException {
+        final byte[] configText = data.getBytes();
+        final Config config = Config.parse(new ByteArrayInputStream(configText));
+        return config;
     }
 }

@@ -39,16 +39,13 @@ public class UserStore {
         return sharedPreferences.getString(USER_DATA_KEY, USER_TOKEN_DEFAULT_VALUE);
     }
 
-    public void setDeviceName(String device){
-        sharedPreferences.edit().putString(DEVICE_DATA_KEY, device).apply();
+    public void setDevice(String deviceName, String deviceID){
+        sharedPreferences.edit().putString(DEVICE_DATA_KEY, deviceName).apply();
+        sharedPreferences.edit().putString(DEVICE_ID_KEY,deviceID).apply();
     }
 
     public String getDeviceName(){
         return sharedPreferences.getString(DEVICE_DATA_KEY, DEVICE_DEFAULT_VALUE);
-    }
-
-    public void setDeviceID(String id){
-        sharedPreferences.edit().putString(DEVICE_ID_KEY,id).apply();
     }
 
     public String getDeviceID(){
