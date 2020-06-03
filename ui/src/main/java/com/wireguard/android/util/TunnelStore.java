@@ -10,6 +10,10 @@ public class TunnelStore {
     private static final String TUNNEL_SHARED_PREF = "com.wireguard.android.util.bubbleTunnelSharedPref";
     private static final String TUNNEL_DATA_KEY = "com.wireguard.android.util.bubbleResponse";
     private static final String CONFIG_DATA_KEY = "com.wireguard.android.util.bubbleConfigResponse";
+    private static final String CONNECTION_STATE_KEY = "com.wireguard.android.util.connectionStateResponse";
+    private static final String CONNECTION_STATE_STRING_KEY = "com.wireguard.android.util.connectionStateStringResponse";
+    private static final boolean CONNECTION_STATE_DEFAULT_VALUE = false;
+    private static final String CONNECTION_STATE_STRING_DEFAULT_VALUE = "Not Connected";
     public static final String TUNNEL_DEFAULT_VALUE = "";
     public static final String CONFIG_DEFAULT_VALUE = "";
 
@@ -40,5 +44,18 @@ public class TunnelStore {
 
     public String getConfig(){
         return sharedPreferences.getString(CONFIG_DATA_KEY,CONFIG_DEFAULT_VALUE);
+    }
+
+    public void setConnectionState(final boolean state, final String stateConnection){
+        sharedPreferences.edit().putBoolean(CONNECTION_STATE_KEY,state).apply();
+        sharedPreferences.edit().putString(CONNECTION_STATE_STRING_KEY,stateConnection).apply();
+    }
+
+    public boolean getConnectionState(){
+        return sharedPreferences.getBoolean(CONNECTION_STATE_KEY,CONNECTION_STATE_DEFAULT_VALUE);
+    }
+
+    public String isBubbleConnected(){
+        return sharedPreferences.getString(CONNECTION_STATE_STRING_KEY,CONNECTION_STATE_STRING_DEFAULT_VALUE);
     }
 }

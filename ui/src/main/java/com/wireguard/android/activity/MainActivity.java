@@ -15,6 +15,7 @@ import com.wireguard.android.Application;
 import com.wireguard.android.R;
 import com.wireguard.android.backend.GoBackend;
 import com.wireguard.android.backend.Tunnel;
+import com.wireguard.android.backend.Tunnel.State;
 import com.wireguard.android.model.ObservableTunnel;
 import com.wireguard.android.viewmodel.MainViewModel;
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private Button connectButton;
     public ObservableTunnel pendingTunnel;
     private Boolean pendingTunnelUp;
+    private boolean connectionStateFlag;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
 
@@ -39,12 +41,13 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
         initUI();
-        pendingTunnel = mainViewModel.getTunnel(this);
     }
 
     private void initUI() {
         initViews();
         initListeners();
+        connectionStateFlag = mainViewModel.getConnectionState(this);
+        bubbleStatus.setText(mainViewModel.isBubbleConnected(this));
     }
 
     private void initViews() {
@@ -61,7 +64,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-            setTunnelState(true);
+        ObservableTunnel tunnel = mainViewModel.getTunnel(this, connectionStateFlag);
+        pendingTunnel = tunnel;
+        mainViewModel.getTunnelManager().getTunnelState(pendingTunnel).whenComplete((state, throwable) -> {
+            if (state == State.DOWN) {
+                connectionStateFlag = true;
+                setTunnelState(true);
+            } else if (state == State.UP) {
+                setTunnelState(false);
+                connectionStateFlag = false;
+            }
+        });
     }
 
     private void setTunnelState(final Boolean checked) {
@@ -84,12 +97,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void setTunnelStateWithPermissionsResult(final ObservableTunnel tunnel, final boolean checked) {
         tunnel.setStateAsync(Tunnel.State.of(checked)).whenComplete((observableTunnel, throwable) ->{
-           if(throwable==null){
-               Toast.makeText(this,"Connected",Toast.LENGTH_SHORT).show();
-           }
-           else {
-               Toast.makeText(this,"Failed",Toast.LENGTH_SHORT).show();
-           }
+            if(throwable==null){
+                if(observableTunnel.equals(State.DOWN)) {
+                    Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
+                    bubbleStatus.setText(getString(R.string.not_connected_bubble));
+                }
+                else  {
+                    Toast.makeText(this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
+                    bubbleStatus.setText(getString(R.string.connected_bubble));
+                }
+            }
+            else {
+                Toast.makeText(this,getString(R.string.failed_bubble),Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -100,5 +120,10 @@ public class MainActivity extends AppCompatActivity {
             pendingTunnel = null;
             pendingTunnelUp = null;
         }
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        mainViewModel.setConnectionState(this,connectionStateFlag,bubbleStatus.getText().toString());
     }
 }

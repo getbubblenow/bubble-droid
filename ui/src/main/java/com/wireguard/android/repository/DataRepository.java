@@ -46,6 +46,7 @@ public class DataRepository {
     private ClientApi clientApi;
     private CompositeDisposable compositeDisposable;
     private final OkHttpClient client = new OkHttpClient();
+    private TunnelManager tunnelManager;
 
     public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
     private static final String SEPARATOR = ":";
@@ -53,16 +54,17 @@ public class DataRepository {
     private static final String DELIMITER = "\\A";
     private static final int ANDROID_ID = 1;
 
-    private DataRepository() {
+    private DataRepository(Context context) {
         clientApi = ClientService.getInstance().createClientApi();
         compositeDisposable = new CompositeDisposable();
+        tunnelManager = new TunnelManager(new FileConfigStore(context));
     }
 
-    public static void buildRepositoryInstance() {
+    public static void buildRepositoryInstance(Context context) {
         if (instance == null) {
             synchronized (DataRepository.class) {
                 if (instance == null) {
-                    instance = new DataRepository();
+                    instance = new DataRepository(context);
                 }
             }
         }
@@ -247,6 +249,7 @@ public class DataRepository {
                     Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
                         if (observableTunnel != null) {
                             TunnelStore.getInstance(context).setTunnel(tunnelName, rawConfig);
+                            tunnelManager.setTunnelState(observableTunnel,State.DOWN);
                             setMutableLiveData(StatusResource.success());
                         } else {
                             setMutableLiveData(StatusResource.error(throwable.getMessage()));
@@ -300,7 +303,17 @@ public class DataRepository {
     }
 
 
-    public ObservableTunnel getTunnel(Context context) {
+    private Config parseConfig(String data) throws IOException, BadConfigException {
+        final byte[] configText = data.getBytes();
+        final Config config = Config.parse(new ByteArrayInputStream(configText));
+        return config;
+    }
+
+    public TunnelManager getTunnelManager() {
+        return tunnelManager;
+    }
+
+    public ObservableTunnel getTunnel(final Context context, final boolean stateTunnel){
         //TODO implement config is null case
         Config config = null;
         try {
@@ -308,15 +321,28 @@ public class DataRepository {
         } catch (final IOException | BadConfigException e) {
             return null;
         }
-        final String name = TunnelStore.getInstance(context).getTunnelName();
-        final TunnelManager tunnelManager = new TunnelManager(new FileConfigStore(context));
-        final ObservableTunnel tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        final String name =  TunnelStore.getInstance(context).getTunnelName();
+        final ObservableTunnel tunnel;
+        if(stateTunnel){
+            tunnel =  new ObservableTunnel(tunnelManager, name, config, State.UP);
+        }
+        else {
+            tunnel =  new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        }
+        tunnelManager.setTunnelState(tunnel,tunnel.getState());
+
         return tunnel;
     }
 
-    private Config parseConfig(String data) throws IOException, BadConfigException {
-        final byte[] configText = data.getBytes();
-        final Config config = Config.parse(new ByteArrayInputStream(configText));
-        return config;
+    public boolean getConnectionState(Context context){
+        return TunnelStore.getInstance(context).getConnectionState();
+    }
+
+    public String isBubbleConnected(Context context){
+        return TunnelStore.getInstance(context).isBubbleConnected();
+    }
+
+    public void setConnectionState(final Context context, final boolean state, final String stateConnection){
+        TunnelStore.getInstance(context).setConnectionState(state,stateConnection);
     }
 }
