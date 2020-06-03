@@ -29,16 +29,13 @@ public class TunnelStore {
         sharedPreferences = context.getSharedPreferences(TUNNEL_SHARED_PREF, Context.MODE_PRIVATE);
     }
 
-    public void setTunnelName(String tunnelName){
+    public void setTunnel(String tunnelName , String config){
         sharedPreferences.edit().putString(TUNNEL_DATA_KEY,tunnelName).apply();
+        sharedPreferences.edit().putString(CONFIG_DATA_KEY,config).apply();
     }
 
     public String getTunnelName(){
         return sharedPreferences.getString(TUNNEL_DATA_KEY, TUNNEL_DEFAULT_VALUE);
-    }
-
-    public void setConfig(String config){
-        sharedPreferences.edit().putString(CONFIG_DATA_KEY,config).apply();
     }
 
     public String getConfig(){

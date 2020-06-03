@@ -67,18 +67,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setTunnelState(final Boolean checked) {
-    final ObservableTunnel tunnel = pendingTunnel;
-    Application.getBackendAsync().thenAccept(backend -> {
-        if (backend instanceof GoBackend) {
-            final Intent intent = GoBackend.VpnService.prepare(this);
-            if (intent != null) {
-                pendingTunnelUp = checked;
-                startActivityForResult(intent, REQUEST_CODE_VPN_PERMISSION);
-                return;
-            }
+        if(pendingTunnel!=null) {
+            final ObservableTunnel tunnel = pendingTunnel;
+            Application.getBackendAsync().thenAccept(backend -> {
+                if (backend instanceof GoBackend) {
+                    final Intent intent = GoBackend.VpnService.prepare(this);
+                    if (intent != null) {
+                        pendingTunnelUp = checked;
+                        startActivityForResult(intent, REQUEST_CODE_VPN_PERMISSION);
+                        return;
+                    }
+                }
+                setTunnelStateWithPermissionsResult(tunnel, checked);
+            });
         }
-        setTunnelStateWithPermissionsResult(tunnel, checked);
-    });
 
 }
 
