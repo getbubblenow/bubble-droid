@@ -11,5 +11,4 @@ public class ApiConstants {
     public static final String AUTHORIZATION_HEADER = "X-Bubble-Session";
     public static final String DEVICE_NAME = "name";
     public static final String DEVICE_TYPE = "deviceType";
-    public static final String TUNNEL_NAME = "BubbleVPN";
 }

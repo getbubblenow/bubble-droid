@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
+import com.wireguard.android.repository.DataRepository;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.viewmodel.LoginViewModel;
 
@@ -25,8 +26,9 @@ public class LoginActivity extends BaseActivityBubble {
     private EditText password;
     private Button sign;
 
-    private static final String HTTPS = "https://";
-    private static final String BUBBLE_API = ":1443/api/";
+    private static final String BASE_URL_PREFIX = "https://";
+    private static final String BASE_URL_SUFFIX = ":1443/api/";
+    private static final String SEPARATOR = "\\.";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +46,17 @@ public class LoginActivity extends BaseActivityBubble {
     private void initListeners() {
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
-                final String url = HTTPS + bubbleName.getText().toString() + BUBBLE_API;
-                loginViewModel.buildRepositoryInstance(LoginActivity.this,url);
+                final String url = BASE_URL_PREFIX + bubbleName.getText().toString() + BASE_URL_SUFFIX;
+                if(url.split(SEPARATOR).length!=3){
+                    Toast.makeText(LoginActivity.this,"Bubble name is not valid",Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(DataRepository.getRepositoryInstance()==null) {
+                    loginViewModel.buildRepositoryInstance(LoginActivity.this, url);
+                }
+                else {
+                    loginViewModel.buildClientService(url);
+                }
                 loginViewModel.setUserURL(LoginActivity.this,url);
                 final String username = userName.getText().toString().trim();
                 final String password = LoginActivity.this.password.getText().toString().trim();

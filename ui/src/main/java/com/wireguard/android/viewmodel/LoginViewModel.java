@@ -27,4 +27,8 @@ public class LoginViewModel extends ViewModel {
     public void setUserURL(Context context, String url){
         DataRepository.getRepositoryInstance().setUserURL(context,url);
     }
+
+    public void buildClientService(String url){
+        DataRepository.getRepositoryInstance().buildClientService(url);
+    }
 }

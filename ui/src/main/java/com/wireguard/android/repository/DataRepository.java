@@ -54,6 +54,7 @@ public class DataRepository {
     private static final String DELIMITER = "\\A";
     private static final int ANDROID_ID = 1;
     private static  String BASE_URL = "";
+    private static final String TUNNEL_NAME = "BubbleVPN";
 
     private DataRepository(Context context,String url) {
         BASE_URL = url;
@@ -63,10 +64,6 @@ public class DataRepository {
     }
 
     public static void buildRepositoryInstance(Context context, String url) {
-        if(url!=null){
-            instance = new DataRepository(context,url);
-            return;
-        }
         if (instance == null) {
             synchronized (DataRepository.class) {
                 if (instance == null) {
@@ -74,6 +71,11 @@ public class DataRepository {
                 }
             }
         }
+    }
+
+    public void buildClientService(String url){
+        BASE_URL = url;
+        clientApi = ClientService.getInstance().createClientApi(url);
     }
 
     public static DataRepository getRepositoryInstance() {
@@ -252,9 +254,9 @@ public class DataRepository {
                 try {
                     final byte[] configBytes = rawConfig.getBytes();
                     final Config config = Config.parse(new ByteArrayInputStream(configBytes));
-                    Application.getTunnelManager().create(ApiConstants.TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
+                    Application.getTunnelManager().create(TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
                         if (observableTunnel != null) {
-                            TunnelStore.getInstance(context).setTunnel(ApiConstants.TUNNEL_NAME, rawConfig);
+                            TunnelStore.getInstance(context).setTunnel(TUNNEL_NAME, rawConfig);
                             tunnelManager.setTunnelState(observableTunnel,State.DOWN);
                             setMutableLiveData(StatusResource.success());
                         } else {
