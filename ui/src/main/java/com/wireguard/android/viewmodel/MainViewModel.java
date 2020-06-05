@@ -23,18 +23,6 @@ public class MainViewModel extends ViewModel {
         return DataRepository.getRepositoryInstance().getTunnelManager();
     }
 
-    public boolean getConnectionState(Context context){
-        return DataRepository.getRepositoryInstance().getConnectionState(context);
-    }
-
-    public String isBubbleConnected(Context context){
-        return DataRepository.getRepositoryInstance().isBubbleConnected(context);
-    }
-
-    public void setConnectionState(final Context context, final boolean state, final String stateConnection){
-        DataRepository.getRepositoryInstance().setConnectionState(context,state,stateConnection);
-    }
-
     public void buildRepositoryInstance(Context context, String url){
         DataRepository.buildRepositoryInstance(context,url);
     }

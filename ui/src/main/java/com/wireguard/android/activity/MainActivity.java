@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     public ObservableTunnel pendingTunnel;
     private Boolean pendingTunnelUp;
     private boolean connectionStateFlag;
+    private ObservableTunnel tunnel ;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
 
@@ -42,8 +43,28 @@ public class MainActivity extends AppCompatActivity {
         }
         initUI();
         mainViewModel.buildRepositoryInstance(this,mainViewModel.getUserURL(this));
-        connectionStateFlag = mainViewModel.getConnectionState(this);
-        bubbleStatus.setText(mainViewModel.isBubbleConnected(this));
+        tunnel = mainViewModel.getTunnelManager().getLastUsedTunnel();
+        if(tunnel == null) {
+            tunnel = mainViewModel.getTunnel(this, connectionStateFlag);
+        }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if(tunnel!=null){
+            if(tunnel.getState() == State.DOWN)
+            {
+                connectionStateFlag = false;
+                bubbleStatus.setText(getString(R.string.not_connected_bubble));
+                connectButton.setText(getString(R.string.connect));
+            }
+            else {
+                connectionStateFlag = true;
+                bubbleStatus.setText(getString(R.string.connected_bubble));
+                connectButton.setText(getString(R.string.disconnect));
+            }
+        }
+        pendingTunnel = tunnel;
     }
 
     private void initUI() {
@@ -65,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        ObservableTunnel tunnel = mainViewModel.getTunnel(this, connectionStateFlag);
-        pendingTunnel = tunnel;
         mainViewModel.getTunnelManager().getTunnelState(pendingTunnel).whenComplete((state, throwable) -> {
             if (state == State.DOWN) {
                 connectionStateFlag = true;
@@ -99,13 +118,15 @@ public class MainActivity extends AppCompatActivity {
     private void setTunnelStateWithPermissionsResult(final ObservableTunnel tunnel, final boolean checked) {
         tunnel.setStateAsync(Tunnel.State.of(checked)).whenComplete((observableTunnel, throwable) ->{
             if(throwable==null){
-                if(observableTunnel.equals(State.DOWN)) {
+                if(observableTunnel == State.DOWN) {
                     Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
                     bubbleStatus.setText(getString(R.string.not_connected_bubble));
+                    connectButton.setText(getString(R.string.connect));
                 }
                 else  {
                     Toast.makeText(this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
                     bubbleStatus.setText(getString(R.string.connected_bubble));
+                    connectButton.setText(getString(R.string.disconnect));
                 }
             }
             else {
@@ -121,10 +142,5 @@ public class MainActivity extends AppCompatActivity {
             pendingTunnel = null;
             pendingTunnelUp = null;
         }
-    }
-
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        mainViewModel.setConnectionState(this,connectionStateFlag,bubbleStatus.getText().toString());
     }
 }

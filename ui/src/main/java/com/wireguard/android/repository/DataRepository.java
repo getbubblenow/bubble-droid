@@ -341,19 +341,6 @@ public class DataRepository {
 
         return tunnel;
     }
-
-    public boolean getConnectionState(Context context){
-        return TunnelStore.getInstance(context).getConnectionState();
-    }
-
-    public String isBubbleConnected(Context context){
-        return TunnelStore.getInstance(context).isBubbleConnected();
-    }
-
-    public void setConnectionState(final Context context, final boolean state, final String stateConnection){
-        TunnelStore.getInstance(context).setConnectionState(state,stateConnection);
-    }
-
     public void setUserURL(Context context, String url){
         UserStore.getInstance(context).setUserURL(url);
     }
