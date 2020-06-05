@@ -48,7 +48,7 @@ public class LoginActivity extends BaseActivityBubble {
             @Override public void onClick(final View v) {
                 final String url = BASE_URL_PREFIX + bubbleName.getText().toString() + BASE_URL_SUFFIX;
                 if(url.split(SEPARATOR).length!=3){
-                    Toast.makeText(LoginActivity.this,"Bubble name is not valid",Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this,"Hostname not valid",Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(DataRepository.getRepositoryInstance()==null) {

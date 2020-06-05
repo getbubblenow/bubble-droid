@@ -2,6 +2,7 @@ package com.wireguard.android.activity;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
@@ -43,10 +44,7 @@ public class MainActivity extends AppCompatActivity {
         }
         initUI();
         mainViewModel.buildRepositoryInstance(this,mainViewModel.getUserURL(this));
-        tunnel = mainViewModel.getTunnelManager().getLastUsedTunnel();
-        if(tunnel == null) {
-            tunnel = mainViewModel.getTunnel(this, connectionStateFlag);
-        }
+        tunnel = mainViewModel.getTunnel(this,connectionStateFlag);
     }
 
     @Override protected void onResume() {
@@ -86,13 +84,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        mainViewModel.getTunnelManager().getTunnelState(pendingTunnel).whenComplete((state, throwable) -> {
-            if (state == State.DOWN) {
-                connectionStateFlag = true;
-                setTunnelState(true);
-            } else if (state == State.UP) {
-                setTunnelState(false);
-                connectionStateFlag = false;
+        mainViewModel.getTunnelState(pendingTunnel).observe(this, new Observer<Boolean>() {
+            @Override public void onChanged(final Boolean state) {
+                connectionStateFlag = state;
+                setTunnelState(state);
             }
         });
     }

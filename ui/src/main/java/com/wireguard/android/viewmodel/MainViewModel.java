@@ -8,6 +8,7 @@ import com.wireguard.android.repository.DataRepository;
 import com.wireguard.android.util.TunnelStore;
 import com.wireguard.android.util.UserStore;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class MainViewModel extends ViewModel {
@@ -29,5 +30,9 @@ public class MainViewModel extends ViewModel {
 
     public String getUserURL(Context context){
         return UserStore.getInstance(context).getUserURL();
+    }
+
+    public MutableLiveData<Boolean> getTunnelState(ObservableTunnel pendingTunnel){
+        return DataRepository.getRepositoryInstance().getTunnelState(pendingTunnel);
     }
 }

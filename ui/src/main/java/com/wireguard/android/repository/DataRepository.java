@@ -321,7 +321,7 @@ public class DataRepository {
         return tunnelManager;
     }
 
-    public ObservableTunnel getTunnel(final Context context, final boolean stateTunnel){
+    public ObservableTunnel createTunnel(final Context context, final boolean stateTunnel){
         //TODO implement config is null case
         Config config = null;
         try {
@@ -343,5 +343,27 @@ public class DataRepository {
     }
     public void setUserURL(Context context, String url){
         UserStore.getInstance(context).setUserURL(url);
+    }
+
+    public ObservableTunnel getTunnel(Context context, boolean connectionStateFlag)
+    {
+        ObservableTunnel tunnel = tunnelManager.getLastUsedTunnel();
+        if(tunnel == null) {
+            tunnel = createTunnel(context, connectionStateFlag);
+        }
+        return tunnel;
+    }
+
+    public MutableLiveData<Boolean> getTunnelState(ObservableTunnel pendingTunnel)
+    {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        tunnelManager.getTunnelState(pendingTunnel).whenComplete((state, throwable) -> {
+            if (state == State.DOWN) {
+                liveData.postValue(true);
+            } else if (state == State.UP) {
+                liveData.postValue(false);
+            }
+        });
+        return liveData;
     }
 }
