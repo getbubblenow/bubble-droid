@@ -20,10 +20,6 @@ public class MainViewModel extends ViewModel {
         return DataRepository.getRepositoryInstance().getTunnel(context,stateTunnel);
     }
 
-    public TunnelManager getTunnelManager() {
-        return DataRepository.getRepositoryInstance().getTunnelManager();
-    }
-
     public void buildRepositoryInstance(Context context, String url){
         DataRepository.buildRepositoryInstance(context,url);
     }

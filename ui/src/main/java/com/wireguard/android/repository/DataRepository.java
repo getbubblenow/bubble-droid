@@ -317,9 +317,6 @@ public class DataRepository {
         return config;
     }
 
-    public TunnelManager getTunnelManager() {
-        return tunnelManager;
-    }
 
     public ObservableTunnel createTunnel(final Context context, final boolean stateTunnel){
         //TODO implement config is null case

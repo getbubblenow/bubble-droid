@@ -48,7 +48,7 @@ public class LoginActivity extends BaseActivityBubble {
             @Override public void onClick(final View v) {
                 final String url = BASE_URL_PREFIX + bubbleName.getText().toString() + BASE_URL_SUFFIX;
                 if(url.split(SEPARATOR).length!=3){
-                    Toast.makeText(LoginActivity.this,"Hostname not valid",Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this,getResources().getText(R.string.hostname_not_valid),Toast.LENGTH_LONG).show();
                     return;
                 }
                 if(DataRepository.getRepositoryInstance()==null) {
@@ -58,10 +58,10 @@ public class LoginActivity extends BaseActivityBubble {
                     loginViewModel.buildClientService(url);
                 }
                 loginViewModel.setUserURL(LoginActivity.this,url);
-                final String username = userName.getText().toString().trim();
-                final String password = LoginActivity.this.password.getText().toString().trim();
+                final String usernameInput = userName.getText().toString().trim();
+                final String passwordInput = password.getText().toString().trim();
                 showLoadingDialog();
-                login(username, password);
+                login(usernameInput, passwordInput);
             }
         });
     }

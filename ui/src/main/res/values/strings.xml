@@ -246,4 +246,5 @@
     <string name="connected_bubble">Connected</string>
     <string name="failed_bubble">Failed</string>
     <string name="disconnect">Disconnect</string>
+    <string name="hostname_not_valid">Hostname not valid</string>
 </resources>
