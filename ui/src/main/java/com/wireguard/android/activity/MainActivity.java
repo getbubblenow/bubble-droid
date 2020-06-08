@@ -24,10 +24,9 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
     private TextView bubbleStatus;
     private Button connectButton;
-    public ObservableTunnel pendingTunnel;
+    private ObservableTunnel pendingTunnel;
     private Boolean pendingTunnelUp;
     private boolean connectionStateFlag;
-    private ObservableTunnel tunnel ;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
 
@@ -42,15 +41,15 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        initUI();
         mainViewModel.buildRepositoryInstance(this,mainViewModel.getUserURL(this));
-        tunnel = mainViewModel.getTunnel(this,connectionStateFlag);
+        pendingTunnel = mainViewModel.getTunnel(this,connectionStateFlag);
+        initUI();
     }
 
     @Override protected void onResume() {
         super.onResume();
-        if(tunnel!=null){
-            if(tunnel.getState() == State.DOWN)
+        if(pendingTunnel!=null){
+            if(pendingTunnel.getState() == State.DOWN)
             {
                 connectionStateFlag = false;
                 bubbleStatus.setText(getString(R.string.not_connected_bubble));
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
                 connectButton.setText(getString(R.string.disconnect));
             }
         }
-        pendingTunnel = tunnel;
     }
 
     private void initUI() {
