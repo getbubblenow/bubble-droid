@@ -28,7 +28,15 @@ public class MainViewModel extends ViewModel {
         return UserStore.getInstance(context).getUserURL();
     }
 
-    public MutableLiveData<Boolean> getTunnelState(ObservableTunnel pendingTunnel){
-        return DataRepository.getRepositoryInstance().getTunnelState(pendingTunnel);
+    public MutableLiveData<Boolean> connectWithPermission(final boolean checked , Context context) {
+        return DataRepository.getRepositoryInstance().connectWithPermission(checked,context);
+    }
+
+    public MutableLiveData<Boolean> connect(final Boolean checked , Context context) {
+        return DataRepository.getRepositoryInstance().connect(checked,context);
+    }
+
+    public boolean isVPNConnected(Context context, boolean connectionStateFlag) {
+        return DataRepository.getRepositoryInstance().isVPNConnected(context,connectionStateFlag);
     }
 }

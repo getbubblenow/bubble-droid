@@ -11,21 +11,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.wireguard.android.Application;
 import com.wireguard.android.R;
-import com.wireguard.android.backend.GoBackend;
-import com.wireguard.android.backend.Tunnel;
-import com.wireguard.android.backend.Tunnel.State;
-import com.wireguard.android.model.ObservableTunnel;
 import com.wireguard.android.viewmodel.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
     private TextView bubbleStatus;
     private Button connectButton;
-    private ObservableTunnel pendingTunnel;
-    private Boolean pendingTunnelUp;
     private boolean connectionStateFlag;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
@@ -41,25 +33,20 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        mainViewModel.buildRepositoryInstance(this,mainViewModel.getUserURL(this));
-        pendingTunnel = mainViewModel.getTunnel(this,connectionStateFlag);
+        mainViewModel.buildRepositoryInstance(this, mainViewModel.getUserURL(this));
         initUI();
     }
 
     @Override protected void onResume() {
         super.onResume();
-        if(pendingTunnel!=null){
-            if(pendingTunnel.getState() == State.DOWN)
-            {
-                connectionStateFlag = false;
-                bubbleStatus.setText(getString(R.string.not_connected_bubble));
-                connectButton.setText(getString(R.string.connect));
-            }
-            else {
-                connectionStateFlag = true;
-                bubbleStatus.setText(getString(R.string.connected_bubble));
-                connectButton.setText(getString(R.string.disconnect));
-            }
+        if (mainViewModel.isVPNConnected(this, connectionStateFlag)) {
+            connectionStateFlag = false;
+            bubbleStatus.setText(getString(R.string.not_connected_bubble));
+            connectButton.setText(getString(R.string.connect));
+        } else {
+            connectionStateFlag = true;
+            bubbleStatus.setText(getString(R.string.connected_bubble));
+            connectButton.setText(getString(R.string.disconnect));
         }
     }
 
@@ -82,48 +69,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connect() {
-        mainViewModel.getTunnelState(pendingTunnel).observe(this, new Observer<Boolean>() {
+        final boolean state = mainViewModel.isVPNConnected(this, connectionStateFlag);
+        connectionStateFlag = state;
+        mainViewModel.connect(state, MainActivity.this).observe(MainActivity.this, new Observer<Boolean>() {
             @Override public void onChanged(final Boolean state) {
-                connectionStateFlag = state;
-                setTunnelState(state);
-            }
-        });
-    }
-
-    private void setTunnelState(final Boolean checked) {
-        if(pendingTunnel!=null) {
-            final ObservableTunnel tunnel = pendingTunnel;
-            Application.getBackendAsync().thenAccept(backend -> {
-                if (backend instanceof GoBackend) {
-                    final Intent intent = GoBackend.VpnService.prepare(this);
-                    if (intent != null) {
-                        pendingTunnelUp = checked;
-                        startActivityForResult(intent, REQUEST_CODE_VPN_PERMISSION);
-                        return;
-                    }
-                }
-                setTunnelStateWithPermissionsResult(tunnel, checked);
-            });
-        }
-
-}
-
-    private void setTunnelStateWithPermissionsResult(final ObservableTunnel tunnel, final boolean checked) {
-        tunnel.setStateAsync(Tunnel.State.of(checked)).whenComplete((observableTunnel, throwable) ->{
-            if(throwable==null){
-                if(observableTunnel == State.DOWN) {
-                    Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
+                if (state) {
+                    Toast.makeText(MainActivity.this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
+                    bubbleStatus.setText(getString(R.string.connected_bubble));
+                    connectButton.setText(getString(R.string.disconnect));
+                } else {
+                    Toast.makeText(MainActivity.this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
                     bubbleStatus.setText(getString(R.string.not_connected_bubble));
                     connectButton.setText(getString(R.string.connect));
                 }
-                else  {
-                    Toast.makeText(this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
-                    bubbleStatus.setText(getString(R.string.connected_bubble));
-                    connectButton.setText(getString(R.string.disconnect));
-                }
-            }
-            else {
-                Toast.makeText(this,getString(R.string.failed_bubble),Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -131,9 +89,27 @@ public class MainActivity extends AppCompatActivity {
     @Override protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_VPN_PERMISSION) {
-            if (pendingTunnel != null && pendingTunnelUp != null) setTunnelStateWithPermissionsResult(pendingTunnel, pendingTunnelUp);
-            pendingTunnel = null;
-            pendingTunnelUp = null;
+            if (resultCode == RESULT_OK) {
+                mainViewModel.connectWithPermission(connectionStateFlag, this)
+                        .observe(this, new Observer<Boolean>() {
+                            @Override public void onChanged(final Boolean state) {
+                                if (state) {
+                                    Toast.makeText(MainActivity.this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
+                                    bubbleStatus.setText(getString(R.string.connected_bubble));
+                                    connectButton.setText(getString(R.string.disconnect));
+                                } else {
+                                    Toast.makeText(MainActivity.this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
+                                    bubbleStatus.setText(getString(R.string.not_connected_bubble));
+                                    connectButton.setText(getString(R.string.connect));
+                                }
+                            }
+                        });
+            } else {
+                connectionStateFlag = false;
+                Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
+                bubbleStatus.setText(getString(R.string.not_connected_bubble));
+                connectButton.setText(getString(R.string.connect));
+            }
         }
     }
 }
