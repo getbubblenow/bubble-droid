@@ -247,4 +247,7 @@
     <string name="failed_bubble">Failed</string>
     <string name="disconnect">Disconnect</string>
     <string name="hostname_not_valid">Hostname not valid</string>
+    <string name="login_failed">Login Failed</string>
+    <string name="cerificate_install">"Please install a certificate"</string>
+    <string name="success">Success</string>
 </resources>

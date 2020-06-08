@@ -363,4 +363,24 @@ public class DataRepository {
         });
         return liveData;
     }
+
+    public MutableLiveData<String> getCertificate(Context context){
+        final MutableLiveData<String> liveData = new MutableLiveData<>();
+        final Request request = new Request.Builder()
+                .url(BASE_URL + ApiConstants.CERTIFICATE_URL)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(final okhttp3.Call call, final IOException e) {
+
+            }
+
+            @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
+                final InputStream inputStream = response.body().byteStream();
+                final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
+                final String data = scanner.hasNext() ? scanner.next() : "";
+                liveData.postValue(data);
+            }
+        });
+        return liveData;
+    }
 }

@@ -8,6 +8,7 @@ import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.util.UserStore;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class LoginViewModel extends ViewModel {
@@ -30,5 +31,9 @@ public class LoginViewModel extends ViewModel {
 
     public void buildClientService(String url){
         DataRepository.getRepositoryInstance().buildClientService(url);
+    }
+
+    public MutableLiveData<String> getCertificate(Context context){
+        return DataRepository.getRepositoryInstance().getCertificate(context);
     }
 }
