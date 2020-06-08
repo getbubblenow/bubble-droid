@@ -33,7 +33,7 @@ public class LoginViewModel extends ViewModel {
         DataRepository.getRepositoryInstance().buildClientService(url);
     }
 
-    public MutableLiveData<String> getCertificate(Context context){
+    public MutableLiveData<byte[]> getCertificate(Context context){
         return DataRepository.getRepositoryInstance().getCertificate(context);
     }
 }

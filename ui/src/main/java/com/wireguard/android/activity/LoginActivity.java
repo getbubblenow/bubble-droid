@@ -85,22 +85,11 @@ public class LoginActivity extends BaseActivityBubble {
             @Override public void onChanged(final StatusResource<User> userStatusResource) {
                 switch (userStatusResource.status) {
                     case SUCCESS:
-                        loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<String>() {
-                            @Override public void onChanged(final String s) {
+                        loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
+                            @Override public void onChanged(final byte[] encodedCertificate) {
                                 closeLoadingDialog();
-                                final byte[] cert = s.getBytes();
                                 final Intent intent = KeyChain.createInstallIntent();
-                                X509Certificate x509Certificate = null;
-                                try {
-                                    x509Certificate = X509Certificate.getInstance(cert);
-                                } catch (final CertificateException e) {
-                                    e.printStackTrace();
-                                }
-                                try {
-                                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, x509Certificate.getEncoded());
-                                } catch (final CertificateEncodingException e) {
-                                    e.printStackTrace();
-                                }
+                                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
                                 intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
                                 startActivityForResult(intent, REQUEST_CODE);
                             }

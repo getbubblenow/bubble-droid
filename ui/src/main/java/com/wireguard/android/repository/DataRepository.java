@@ -30,6 +30,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.security.cert.CertificateEncodingException;
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+
 import androidx.lifecycle.MutableLiveData;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -364,8 +368,8 @@ public class DataRepository {
         return liveData;
     }
 
-    public MutableLiveData<String> getCertificate(Context context){
-        final MutableLiveData<String> liveData = new MutableLiveData<>();
+    public MutableLiveData<byte[]> getCertificate(Context context){
+        final MutableLiveData<byte[]> liveData = new MutableLiveData<>();
         final Request request = new Request.Builder()
                 .url(BASE_URL + ApiConstants.CERTIFICATE_URL)
                 .build();
@@ -378,7 +382,18 @@ public class DataRepository {
                 final InputStream inputStream = response.body().byteStream();
                 final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                 final String data = scanner.hasNext() ? scanner.next() : "";
-                liveData.postValue(data);
+                final byte[] cert = data.getBytes();
+                X509Certificate x509Certificate = null;
+                try {
+                    x509Certificate = X509Certificate.getInstance(cert);
+                } catch (final CertificateException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    liveData.postValue(x509Certificate.getEncoded());
+                } catch (final CertificateEncodingException e) {
+                    e.printStackTrace();
+                }
             }
         });
         return liveData;
