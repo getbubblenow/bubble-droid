@@ -88,10 +88,14 @@ public class LoginActivity extends BaseActivityBubble {
                         loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
                             @Override public void onChanged(final byte[] encodedCertificate) {
                                 closeLoadingDialog();
-                                final Intent intent = KeyChain.createInstallIntent();
-                                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
-                                intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-                                startActivityForResult(intent, REQUEST_CODE);
+                                if (encodedCertificate.length == 0) {
+                                    Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    final Intent intent = KeyChain.createInstallIntent();
+                                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
+                                    intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
+                                    startActivityForResult(intent, REQUEST_CODE);
+                                }
                             }
                         });
                         break;

@@ -375,24 +375,29 @@ public class DataRepository {
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(final okhttp3.Call call, final IOException e) {
-
+                liveData.postValue(new byte[]{});
             }
 
             @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
-                final InputStream inputStream = response.body().byteStream();
-                final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
-                final String data = scanner.hasNext() ? scanner.next() : "";
-                final byte[] cert = data.getBytes();
-                X509Certificate x509Certificate = null;
-                try {
-                    x509Certificate = X509Certificate.getInstance(cert);
-                } catch (final CertificateException e) {
-                    e.printStackTrace();
+                if (response.isSuccessful()) {
+                    final InputStream inputStream = response.body().byteStream();
+                    final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
+                    final String data = scanner.hasNext() ? scanner.next() : "";
+                    final byte[] cert = data.getBytes();
+                    X509Certificate x509Certificate = null;
+                    try {
+                        x509Certificate = X509Certificate.getInstance(cert);
+                    } catch (final CertificateException e) {
+                        liveData.postValue(new byte[]{});
+                    }
+                    try {
+                        liveData.postValue(x509Certificate.getEncoded());
+                    } catch (final CertificateEncodingException e) {
+                        liveData.postValue(new byte[]{});
+                    }
                 }
-                try {
-                    liveData.postValue(x509Certificate.getEncoded());
-                } catch (final CertificateEncodingException e) {
-                    e.printStackTrace();
+                else {
+                    liveData.postValue(new byte[]{});
                 }
             }
         });
