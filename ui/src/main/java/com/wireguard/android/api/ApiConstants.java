@@ -1,7 +1,6 @@
 package com.wireguard.android.api;
 
 public class ApiConstants {
-    public static final String BASE_URL = "https://jtest2.bubblesecure.com:1443/api/";
     public static final String LOGIN_URL = "auth/login";
     public static final String ALL_DEVICES_URL = "me/devices";
     public static final String ADD_DEVICE_URL = "me/devices";
@@ -12,4 +11,5 @@ public class ApiConstants {
     public static final String AUTHORIZATION_HEADER = "X-Bubble-Session";
     public static final String DEVICE_NAME = "name";
     public static final String DEVICE_TYPE = "deviceType";
+    public static final String CERTIFICATE_URL = "auth/cacert?deviceType=android";
 }

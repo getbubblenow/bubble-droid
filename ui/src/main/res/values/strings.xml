@@ -242,4 +242,12 @@
     <string name="disable_apps">Disable Apps</string>
     <string name="turnInternet">Please turn on internet connection</string>
     <string name="progress_bar_text">Loading</string>
+    <string name="not_connected_bubble">Not Connected</string>
+    <string name="connected_bubble">Connected</string>
+    <string name="failed_bubble">Failed</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="hostname_not_valid">Hostname not valid</string>
+    <string name="login_failed">Login Failed</string>
+    <string name="cerificate_install">"Please install a certificate"</string>
+    <string name="success">Success</string>
 </resources>

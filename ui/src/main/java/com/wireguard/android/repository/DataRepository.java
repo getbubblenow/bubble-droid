@@ -1,15 +1,21 @@
 package com.wireguard.android.repository;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
+import android.widget.Toast;
 
 import com.wireguard.android.Application;
+import com.wireguard.android.R;
+import com.wireguard.android.activity.MainActivity;
 import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
 import com.wireguard.android.api.network.ClientService;
 import com.wireguard.android.api.network.NetworkBoundStatusResource;
+import com.wireguard.android.backend.GoBackend;
+import com.wireguard.android.backend.Tunnel;
 import com.wireguard.android.backend.Tunnel.State;
 import com.wireguard.android.configStore.FileConfigStore;
 import com.wireguard.android.model.Device;
@@ -30,7 +36,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.security.cert.CertificateEncodingException;
+import javax.security.cert.CertificateException;
+import javax.security.cert.X509Certificate;
+
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -46,33 +58,45 @@ public class DataRepository {
     private ClientApi clientApi;
     private CompositeDisposable compositeDisposable;
     private final OkHttpClient client = new OkHttpClient();
+    private TunnelManager tunnelManager;
+    private ObservableTunnel pendingTunnel;
 
     public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
     private static final String SEPARATOR = ":";
     private static final String SPACE = " ";
     private static final String DELIMITER = "\\A";
     private static final int ANDROID_ID = 1;
+    private static String BASE_URL = "";
+    private static final String TUNNEL_NAME = "BubbleVPN";
+    private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
 
-    private DataRepository() {
-        clientApi = ClientService.getInstance().createClientApi();
+    private DataRepository(Context context, String url) {
+        BASE_URL = url;
+        clientApi = ClientService.getInstance().createClientApi(url);
         compositeDisposable = new CompositeDisposable();
+        tunnelManager = new TunnelManager(new FileConfigStore(context));
     }
 
-    public static void buildRepositoryInstance() {
+    public static void buildRepositoryInstance(Context context, String url) {
         if (instance == null) {
             synchronized (DataRepository.class) {
                 if (instance == null) {
-                    instance = new DataRepository();
+                    instance = new DataRepository(context, url);
                 }
             }
         }
+    }
+
+    public void buildClientService(String url) {
+        BASE_URL = url;
+        clientApi = ClientService.getInstance().createClientApi(url);
     }
 
     public static DataRepository getRepositoryInstance() {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<User>> login(String tunnelName, String username, String password, Context context) {
+    public MutableLiveData<StatusResource<User>> login(String username, String password, Context context) {
         return new NetworkBoundStatusResource<User>() {
 
             @Override protected void createCall() {
@@ -115,7 +139,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-
+                            setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -223,7 +247,7 @@ public class DataRepository {
                 final String deviceID = UserStore.getInstance(context).getDeviceID();
                 final String token = UserStore.getInstance(context).getToken();
                 Request request = new Request.Builder()
-                        .url(ApiConstants.BASE_URL + ApiConstants.CONFIG_DEVICE_URL + deviceID + ApiConstants.CONFIG_VPN_URL)
+                        .url(BASE_URL + ApiConstants.CONFIG_DEVICE_URL + deviceID + ApiConstants.CONFIG_VPN_URL)
                         .addHeader(ApiConstants.AUTHORIZATION_HEADER, token)
                         .build();
                 client.newCall(request).enqueue(new Callback() {
@@ -235,18 +259,19 @@ public class DataRepository {
                         final InputStream inputStream = response.body().byteStream();
                         final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                         final String data = scanner.hasNext() ? scanner.next() : "";
-                        createTunnel(data, tunnelName);
+                        createTunnel(data);
                     }
                 });
             }
 
-            private void createTunnel(String rawConfig, String tunnelName) {
+            private void createTunnel(final String rawConfig) {
                 try {
                     final byte[] configBytes = rawConfig.getBytes();
                     final Config config = Config.parse(new ByteArrayInputStream(configBytes));
-                    Application.getTunnelManager().create(tunnelName, config).whenComplete((observableTunnel, throwable) -> {
+                    Application.getTunnelManager().create(TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
                         if (observableTunnel != null) {
-                            TunnelStore.getInstance(context).setTunnel(tunnelName, rawConfig);
+                            TunnelStore.getInstance(context).setTunnel(TUNNEL_NAME, rawConfig);
+                            tunnelManager.setTunnelState(observableTunnel, State.DOWN);
                             setMutableLiveData(StatusResource.success());
                         } else {
                             setMutableLiveData(StatusResource.error(throwable.getMessage()));
@@ -300,7 +325,14 @@ public class DataRepository {
     }
 
 
-    public ObservableTunnel getTunnel(Context context) {
+    private Config parseConfig(String data) throws IOException, BadConfigException {
+        final byte[] configText = data.getBytes();
+        final Config config = Config.parse(new ByteArrayInputStream(configText));
+        return config;
+    }
+
+
+    private ObservableTunnel createTunnel(final Context context, final boolean stateTunnel) {
         //TODO implement config is null case
         Config config = null;
         try {
@@ -309,14 +341,107 @@ public class DataRepository {
             return null;
         }
         final String name = TunnelStore.getInstance(context).getTunnelName();
-        final TunnelManager tunnelManager = new TunnelManager(new FileConfigStore(context));
-        final ObservableTunnel tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        final ObservableTunnel tunnel;
+        if (stateTunnel) {
+            tunnel = new ObservableTunnel(tunnelManager, name, config, State.UP);
+        } else {
+            tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+        }
+        tunnelManager.setTunnelState(tunnel, tunnel.getState());
+
         return tunnel;
     }
 
-    private Config parseConfig(String data) throws IOException, BadConfigException {
-        final byte[] configText = data.getBytes();
-        final Config config = Config.parse(new ByteArrayInputStream(configText));
-        return config;
+    public void setUserURL(Context context, String url) {
+        UserStore.getInstance(context).setUserURL(url);
+    }
+
+    public ObservableTunnel getTunnel(Context context, boolean connectionStateFlag) {
+        ObservableTunnel tunnel = tunnelManager.getLastUsedTunnel();
+        if (tunnel == null) {
+            tunnel = createTunnel(context, connectionStateFlag);
+        }
+        return tunnel;
+    }
+
+    public MutableLiveData<byte[]> getCertificate(Context context) {
+        final MutableLiveData<byte[]> liveData = new MutableLiveData<>();
+        final Request request = new Request.Builder()
+                .url(BASE_URL + ApiConstants.CERTIFICATE_URL)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(final okhttp3.Call call, final IOException e) {
+                liveData.postValue(new byte[]{});
+            }
+
+            @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final InputStream inputStream = response.body().byteStream();
+                    final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
+                    final String data = scanner.hasNext() ? scanner.next() : "";
+                    final byte[] cert = data.getBytes();
+                    X509Certificate x509Certificate = null;
+                    try {
+                        x509Certificate = X509Certificate.getInstance(cert);
+                    } catch (final CertificateException e) {
+                        liveData.postValue(new byte[]{});
+                    }
+                    try {
+                        liveData.postValue(x509Certificate.getEncoded());
+                    } catch (final CertificateEncodingException e) {
+                        liveData.postValue(new byte[]{});
+                    }
+                } else {
+                    liveData.postValue(new byte[]{});
+                }
+            }
+        });
+        return liveData;
+    }
+
+    public boolean isVPNConnected(Context context, boolean connectionStateFlag) {
+        pendingTunnel = getTunnel(context, connectionStateFlag);
+        return pendingTunnel.getState() == State.DOWN;
+    }
+
+    public MutableLiveData<Boolean> connect(final Boolean checked , Context context) {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        if (pendingTunnel != null) {
+            Application.getBackendAsync().thenAccept(backend -> {
+                if (backend instanceof GoBackend) {
+                    final Intent intent = GoBackend.VpnService.prepare(context);
+                    if (intent != null) {
+                        if(context instanceof MainActivity) {
+                            ((MainActivity)context).startActivityForResult(intent, REQUEST_CODE_VPN_PERMISSION);
+                            return;
+                        }
+                    }
+                }
+                connectWithPermission(checked,context).observe((LifecycleOwner) context, new Observer<Boolean>() {
+                    @Override public void onChanged(final Boolean aBoolean) {
+                        liveData.postValue(aBoolean);
+                    }
+                });
+            });
+        }
+        return liveData;
+    }
+
+    public MutableLiveData<Boolean> connectWithPermission(final boolean checked , Context context) {
+        MutableLiveData<Boolean> liveData = new MutableLiveData<>();
+        pendingTunnel.setStateAsync(Tunnel.State.of(checked)).whenComplete((observableTunnel, throwable) ->{
+            if(throwable==null){
+                if(observableTunnel == State.DOWN) {
+                    liveData.postValue(false);
+                }
+                else  {
+                    liveData.postValue(true);
+                }
+            }
+            else {
+                Toast.makeText(context,context.getString(R.string.failed_bubble),Toast.LENGTH_SHORT).show();
+            }
+        });
+        return liveData;
     }
 }
