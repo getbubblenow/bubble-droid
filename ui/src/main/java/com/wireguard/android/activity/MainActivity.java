@@ -27,13 +27,13 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         if (mainViewModel.isUserLoggedIn(this)) {
             setContentView(R.layout.activity_main);
+            mainViewModel.buildRepositoryInstance(this, mainViewModel.getUserURL(this));
+            initUI();
         } else {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
-        mainViewModel.buildRepositoryInstance(this, mainViewModel.getUserURL(this));
-        initUI();
     }
 
     @Override protected void onResume() {
