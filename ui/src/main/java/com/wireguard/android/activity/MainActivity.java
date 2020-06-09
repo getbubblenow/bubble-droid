@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.wireguard.android.R;
 import com.wireguard.android.viewmodel.MainViewModel;
 
@@ -41,12 +40,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (mainViewModel.isVPNConnected(this, connectionStateFlag)) {
             connectionStateFlag = false;
-            bubbleStatus.setText(getString(R.string.not_connected_bubble));
-            connectButton.setText(getString(R.string.connect));
+            setConnectionStateUI(false);
         } else {
             connectionStateFlag = true;
-            bubbleStatus.setText(getString(R.string.connected_bubble));
-            connectButton.setText(getString(R.string.disconnect));
+            setConnectionStateUI(true);
         }
     }
 
@@ -90,20 +87,16 @@ public class MainActivity extends AppCompatActivity {
                         });
             } else {
                 connectionStateFlag = false;
-                Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
-                bubbleStatus.setText(getString(R.string.not_connected_bubble));
-                connectButton.setText(getString(R.string.connect));
+                setConnectionStateUI(false);
             }
         }
     }
 
-    private void setConnectionStateUI(boolean state){
+    private void setConnectionStateUI(boolean state) {
         if (state) {
-            Toast.makeText(this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
             bubbleStatus.setText(getString(R.string.connected_bubble));
             connectButton.setText(getString(R.string.disconnect));
         } else {
-            Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
             bubbleStatus.setText(getString(R.string.not_connected_bubble));
             connectButton.setText(getString(R.string.connect));
         }
