@@ -321,7 +321,9 @@ public class DataRepository {
     }
 
     public void clearDisposable() {
-        compositeDisposable.clear();
+        if(compositeDisposable!=null) {
+            compositeDisposable.clear();
+        }
     }
 
 
