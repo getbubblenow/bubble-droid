@@ -73,15 +73,7 @@ public class MainActivity extends AppCompatActivity {
         connectionStateFlag = state;
         mainViewModel.connect(state, MainActivity.this).observe(MainActivity.this, new Observer<Boolean>() {
             @Override public void onChanged(final Boolean state) {
-                if (state) {
-                    Toast.makeText(MainActivity.this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
-                    bubbleStatus.setText(getString(R.string.connected_bubble));
-                    connectButton.setText(getString(R.string.disconnect));
-                } else {
-                    Toast.makeText(MainActivity.this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
-                    bubbleStatus.setText(getString(R.string.not_connected_bubble));
-                    connectButton.setText(getString(R.string.connect));
-                }
+                setConnectionStateUI(state);
             }
         });
     }
@@ -93,15 +85,7 @@ public class MainActivity extends AppCompatActivity {
                 mainViewModel.connectWithPermission(connectionStateFlag, this)
                         .observe(this, new Observer<Boolean>() {
                             @Override public void onChanged(final Boolean state) {
-                                if (state) {
-                                    Toast.makeText(MainActivity.this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
-                                    bubbleStatus.setText(getString(R.string.connected_bubble));
-                                    connectButton.setText(getString(R.string.disconnect));
-                                } else {
-                                    Toast.makeText(MainActivity.this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
-                                    bubbleStatus.setText(getString(R.string.not_connected_bubble));
-                                    connectButton.setText(getString(R.string.connect));
-                                }
+                                setConnectionStateUI(state);
                             }
                         });
             } else {
@@ -110,6 +94,18 @@ public class MainActivity extends AppCompatActivity {
                 bubbleStatus.setText(getString(R.string.not_connected_bubble));
                 connectButton.setText(getString(R.string.connect));
             }
+        }
+    }
+
+    private void setConnectionStateUI(boolean state){
+        if (state) {
+            Toast.makeText(this, getString(R.string.connected_bubble), Toast.LENGTH_SHORT).show();
+            bubbleStatus.setText(getString(R.string.connected_bubble));
+            connectButton.setText(getString(R.string.disconnect));
+        } else {
+            Toast.makeText(this, getString(R.string.not_connected_bubble), Toast.LENGTH_SHORT).show();
+            bubbleStatus.setText(getString(R.string.not_connected_bubble));
+            connectButton.setText(getString(R.string.connect));
         }
     }
 }
