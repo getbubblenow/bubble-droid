@@ -30,4 +30,5 @@
 
     <!--Bubble Colors-->
     <color name="black">#333333</color>
+    <color name="gray">#838383</color>
 </resources>

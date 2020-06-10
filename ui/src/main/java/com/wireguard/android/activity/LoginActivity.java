@@ -1,5 +1,6 @@
 package com.wireguard.android.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.Observer;
@@ -37,6 +38,9 @@ public class LoginActivity extends BaseActivityBubble {
     private boolean bubbleNameStateFlag = false;
     private boolean userNameStateFlag = false;
     private boolean passwordStateFlag = false;
+    private static final String BUBBLE_NAME_KEY = "bubbleName";
+    private static final String USER_NAME_KEY = "userName";
+    private static final String PASSWORD_KEY = "password";
 
 
     @Override
@@ -206,5 +210,19 @@ public class LoginActivity extends BaseActivityBubble {
         } else {
             Toast.makeText(this, getString(R.string.cerificate_install), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override protected void onSaveInstanceState(@NonNull final Bundle outState) {
+        outState.putBoolean(BUBBLE_NAME_KEY,bubbleNameStateFlag);
+        outState.putBoolean(USER_NAME_KEY,userNameStateFlag);
+        outState.putBoolean(PASSWORD_KEY,passwordStateFlag);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
+        bubbleNameStateFlag = savedInstanceState.getBoolean(BUBBLE_NAME_KEY);
+        userNameStateFlag = savedInstanceState.getBoolean(USER_NAME_KEY);
+        passwordStateFlag = savedInstanceState.getBoolean(PASSWORD_KEY);
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }
