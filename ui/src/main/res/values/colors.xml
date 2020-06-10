@@ -27,4 +27,7 @@
     <color name="warning_tag_color">#aaaa00</color>
 
     <color name="colorPrimaryDark">#C04B26</color>
+
+    <!--Bubble Colors-->
+    <color name="black">#333333</color>
 </resources>

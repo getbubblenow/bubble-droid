@@ -1,6 +1,7 @@
 package com.wireguard.android.activity;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -13,16 +14,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import com.wireguard.android.R;
 import com.wireguard.android.model.User;
 import com.wireguard.android.repository.DataRepository;
 import com.wireguard.android.resource.StatusResource;
 import com.wireguard.android.viewmodel.LoginViewModel;
-
-import javax.security.cert.CertificateEncodingException;
-import javax.security.cert.CertificateException;
-import javax.security.cert.X509Certificate;
 
 public class LoginActivity extends BaseActivityBubble {
 
@@ -30,7 +26,7 @@ public class LoginActivity extends BaseActivityBubble {
     private EditText bubbleName;
     private EditText userName;
     private EditText password;
-    private Button sign;
+    private AppCompatButton sign;
 
     private static final String BASE_URL_PREFIX = "https://";
     private static final String BASE_URL_SUFFIX = ":1443/api/";
