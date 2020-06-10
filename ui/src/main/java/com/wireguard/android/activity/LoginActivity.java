@@ -8,10 +8,11 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.security.KeyChain;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.wireguard.android.R;
@@ -33,6 +34,10 @@ public class LoginActivity extends BaseActivityBubble {
     private static final String SEPARATOR = "\\.";
     private static final int REQUEST_CODE = 1555;
     private static final String CERTIFICATE_NAME = "Bubble Certificate";
+    private boolean bubbleNameStateFlag = false;
+    private boolean userNameStateFlag = false;
+    private boolean passwordStateFlag = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +72,95 @@ public class LoginActivity extends BaseActivityBubble {
                 login(usernameInput, passwordInput);
             }
         });
+        bubbleNameStateListener();
+        userNameStateListener();
+        passwordStateListener();
     }
+
 
     private void initViews() {
         bubbleName = findViewById(R.id.bubbleName);
         userName = findViewById(R.id.userName);
         password = findViewById(R.id.password);
         sign = findViewById(R.id.signButton);
+    }
+
+    private void bubbleNameStateListener() {
+        bubbleName.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+
+            }
+
+            @Override public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+
+            }
+
+            @Override public void afterTextChanged(final Editable s) {
+
+                if (bubbleName.getText().toString().trim().isEmpty()) {
+                    bubbleNameStateFlag = false;
+                } else {
+                    bubbleNameStateFlag = true;
+                }
+                setButtonState();
+            }
+        });
+    }
+
+    private void userNameStateListener() {
+        userName.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+
+            }
+
+            @Override public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+
+            }
+
+            @Override public void afterTextChanged(final Editable s) {
+
+                if (userName.getText().toString().trim().isEmpty()) {
+                    userNameStateFlag = false;
+                } else {
+                    userNameStateFlag = true;
+                }
+                setButtonState();
+            }
+        });
+    }
+
+    private void passwordStateListener() {
+
+        password.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+
+            }
+
+            @Override public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+
+            }
+
+            @Override public void afterTextChanged(final Editable s) {
+
+                if (password.getText().toString().trim().isEmpty()) {
+                    passwordStateFlag = false;
+                } else {
+                    passwordStateFlag = true;
+                }
+                setButtonState();
+            }
+        });
+    }
+
+    private void setButtonState(){
+        if(userNameStateFlag && bubbleNameStateFlag && passwordStateFlag){
+            sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_enable));
+            sign.setEnabled(true);
+        }
+        else {
+            sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_button));
+            sign.setEnabled(false);
+        }
     }
 
     private void login(String username, String password) {
