@@ -9,17 +9,24 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.wireguard.android.R;
 import com.wireguard.android.viewmodel.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
+
     private MainViewModel mainViewModel;
     private TextView bubbleStatus;
+    private TextView titleMyBubble;
     private Button connectButton;
+    private ImageView imageMyBubble;
+    private ImageView mark;
     private boolean connectionStateFlag;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
+    public static final int LEFT = 16;
+    public static final int RIGHT = 16;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     private void initViews() {
         bubbleStatus = findViewById(R.id.bubbleStatus);
         connectButton = findViewById(R.id.connectButton);
+        imageMyBubble = findViewById(R.id.imageMyBubble);
+        mark = findViewById(R.id.mark);
+        titleMyBubble = findViewById(R.id.titleMyBubble);
     }
 
     private void initListeners() {
@@ -95,10 +105,20 @@ public class MainActivity extends AppCompatActivity {
     private void setConnectionStateUI(boolean state) {
         if (state) {
             bubbleStatus.setText(getString(R.string.connected_bubble));
+            bubbleStatus.setTextColor(getResources().getColor(R.color.connectedColor));
+            bubbleStatus.setPadding(LEFT, 160, RIGHT,100);
             connectButton.setText(getString(R.string.disconnect));
+            imageMyBubble.setImageResource(R.drawable.bubble_connected);
+            mark.setVisibility(View.VISIBLE);
+            titleMyBubble.setVisibility(View.GONE);
         } else {
             bubbleStatus.setText(getString(R.string.not_connected_bubble));
+            bubbleStatus.setTextColor(getResources().getColor(R.color.gray));
+            bubbleStatus.setPadding(LEFT,140,RIGHT,130);
             connectButton.setText(getString(R.string.connect));
+            imageMyBubble.setImageResource(R.drawable.bubble_disconnected);
+            mark.setVisibility(View.GONE);
+            titleMyBubble.setVisibility(View.VISIBLE);
         }
     }
 }

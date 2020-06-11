@@ -65,19 +65,34 @@
         app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
         app:layout_constraintTop_toTopOf="@+id/imageMyBubble" />
 
+    <ImageView
+        android:id="@+id/mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="70dp"
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:src="@drawable/mark"
+        app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
+        app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
+        app:layout_constraintTop_toTopOf="@+id/imageMyBubble" />
+
     <TextView
         android:id="@+id/bubbleStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_start_and_end"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="140dp"
         android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:layout_marginBottom="130dp"
         android:text="@string/not_connected_bubble"
         android:textColor="@color/gray"
         android:textSize="@dimen/text_title"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
         app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
-        app:layout_constraintTop_toBottomOf="@+id/titleMyBubble" />
+        app:layout_constraintTop_toTopOf="@+id/imageMyBubble" />
 
     <LinearLayout
         android:id="@+id/linearLayout"

@@ -34,4 +34,5 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#b5e6ff</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="connectedColor">#17AEA6</color>
 </resources>
