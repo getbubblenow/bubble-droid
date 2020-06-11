@@ -32,6 +32,6 @@
     <color name="black">#333333</color>
     <color name="gray">#838383</color>
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#bb0d45ff</color>
+    <color name="colorPrimaryDark">#b5e6ff</color>
     <color name="colorAccent">#FF4081</color>
 </resources>
