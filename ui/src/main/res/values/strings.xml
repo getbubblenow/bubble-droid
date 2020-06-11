@@ -227,10 +227,10 @@
     <string name="biometric_auth_error">Authentication failure</string>
     <string name="biometric_auth_error_reason">Authentication failure: %s</string>
     <!--Bubble constants-->
-    <string name="bubble_name">Bubble Name</string>
+    <string name="bubble_name">Bubble Name:</string>
     <string name="user_name">User Name:</string>
     <string name="password">Password:</string>
-    <string name="sign_in">SIGN IN</string>
+    <string name="sign_in">Sign In</string>
     <string name="don_t_have_a_bubble">Don\'t have a Bubble?</string>
     <string name="start_new_bubble">Start New Bubble</string>
     <string name="my_bubble">My Bubble</string>
@@ -250,4 +250,9 @@
     <string name="login_failed">Login Failed</string>
     <string name="cerificate_install">"Please install a certificate"</string>
     <string name="success">Success</string>
+    <string name="your_password">Your password</string>
+    <string name="email_you_used_to_sign_up">Email you used to Sign Up</string>
+    <string name="email">Email:</string>
+    <string name="you_can_find_your_bubble_name_in_your_email">You can find your Bubble name in your email</string>
+    <string name="enter_your_bubble_name">Enter your Bubble Name</string>
 </resources>

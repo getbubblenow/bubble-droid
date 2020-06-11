@@ -6,4 +6,12 @@
     <dimen name="normal_margin">8dp</dimen>
     <dimen name="bottom_sheet_top_padding">8dp</dimen>
     <dimen name="bottom_sheet_icon_padding">16dp</dimen>
+
+    <!--Bubble dimens-->
+    <dimen name="title">24sp</dimen>
+    <dimen name="login_text_title">14sp</dimen>
+    <dimen name="margin_start_and_end">16dp</dimen>
+    <dimen name="margin_top">8dp</dimen>
+    <dimen name="edit_text_width">254dp</dimen>
+    <dimen name="edit_text_height">55dp</dimen>
 </resources>
