@@ -5,55 +5,182 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/main_background"
     tools:context="com.wireguard.android.activity.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/my_bubble"
-        android:textSize="20sp"
+
+    <ImageView
+        android:layout_width="450dp"
+        android:layout_height="770dp"
+        android:layout_marginBottom="8dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/union"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/bubbleConnectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_start_and_end"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="@dimen/margin_start_and_end"
+                android:fontFamily="@font/josefin_sans"
+                android:letterSpacing="-0.02"
+                android:text="@string/my_bubble"
+                android:textColor="@color/black"
+                android:textSize="@dimen/bubble_connection_title_text_size"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_start_and_end"
+                android:layout_marginTop="@dimen/margin_start_and_end"
+                android:layout_marginEnd="@dimen/margin_start_and_end"
+                android:text="@string/your_private_bubble"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/bubbleConnectionTitle" />
+
+
+    <ImageView
+        android:id="@+id/imageMyBubble"
+        android:layout_width="285.56dp"
+        android:layout_height="378.72dp"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:layout_marginBottom="120dp"
+        android:src="@drawable/bubble_disconnected"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.085" />
+        app:layout_constraintTop_toTopOf="@+id/constraints" />
 
     <TextView
+        android:id="@+id/titleMyBubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="45dp"
+        android:letterSpacing="-0.05"
         android:text="@string/bubble_status"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.112"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.183" />
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/constraints"
+        app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
+        app:layout_constraintStart_toStartOf="@+id/imageMyBubble" />
+
+    <ImageView
+        android:id="@+id/mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="80dp"
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:src="@drawable/mark"
+
+        app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
+        app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
+        app:layout_constraintTop_toTopOf="@+id/imageMyBubble" />
 
     <TextView
         android:id="@+id/bubbleStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="150dp"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:layout_marginBottom="120dp"
         android:text="@string/not_connected_bubble"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.75"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.183" />
+        android:textColor="@color/gray"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
+        app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
+        app:layout_constraintTop_toTopOf="@+id/imageMyBubble" />
 
-    <Button
-        android:id="@+id/connectButton"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="@dimen/edit_text_width"
+        android:layout_height="@dimen/edit_text_height"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraints">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/connectButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/sign_in_enable"
+            android:enabled="true"
+            android:text="@string/connect"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_title" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/myBubbleImageView"
+        android:layout_width="@dimen/icons_size"
+        android:layout_height="@dimen/icons_size"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginBottom="44dp"
+        android:background="@drawable/my_bubble"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/accountImageView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/accountImageView"
+                android:layout_width="@dimen/icons_size"
+                android:layout_height="@dimen/icons_size"
+                android:layout_marginStart="@dimen/margin_start_and_end"
+                android:layout_marginEnd="@dimen/margin_start_and_end"
+                android:background="@drawable/account"
+                app:layout_constraintBottom_toBottomOf="@+id/myBubbleImageView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/myBubbleImageView"
+                app:layout_constraintTop_toTopOf="@+id/myBubbleImageView" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/home"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/accountImageView"
+        app:layout_constraintStart_toEndOf="@+id/myBubbleImageView"
+        app:layout_constraintTop_toTopOf="@+id/myBubbleImageView" />
+
+    <androidx.constraintlayout.widget.Constraints
+        android:id="@+id/constraints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="264dp"
-        android:text="@string/connect"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="@dimen/margin_start_and_end"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:layout_marginBottom="@dimen/margin_start_and_end"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

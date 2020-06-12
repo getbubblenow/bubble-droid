@@ -9,9 +9,11 @@
 
     <!--Bubble dimens-->
     <dimen name="title">24sp</dimen>
-    <dimen name="login_text_title">14sp</dimen>
+    <dimen name="text_title">14sp</dimen>
     <dimen name="margin_start_and_end">16dp</dimen>
     <dimen name="margin_top">8dp</dimen>
     <dimen name="edit_text_width">254dp</dimen>
     <dimen name="edit_text_height">55dp</dimen>
+    <dimen name="bubble_connection_title_text_size">30sp</dimen>
+    <dimen name="icons_size">90dp</dimen>
 </resources>

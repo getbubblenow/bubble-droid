@@ -162,7 +162,7 @@ public class LoginActivity extends BaseActivityBubble {
             sign.setEnabled(true);
         }
         else {
-            sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_button));
+            sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_disable));
             sign.setEnabled(false);
         }
     }
