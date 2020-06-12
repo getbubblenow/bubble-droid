@@ -6,10 +6,13 @@ import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
-
 import com.wireguard.android.Application;
 import com.wireguard.android.R;
+import com.wireguard.android.activity.LoginActivity;
 import com.wireguard.android.activity.MainActivity;
 import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
@@ -382,6 +385,7 @@ public class DataRepository {
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(final okhttp3.Call call, final IOException e) {
+                showNetworkNotAvailableMessage(e,context);
                 liveData.postValue(new byte[]{});
             }
 
@@ -458,9 +462,18 @@ public class DataRepository {
 
     private void showNetworkNotAvailableMessage(Throwable throwable , Context context){
         if( throwable instanceof UnknownHostException || throwable instanceof ConnectException){
-            Toast toast = Toast.makeText(context,context.getString(R.string.network_not_found),Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.TOP | Gravity.START,90,60);
-            toast.show();
+            if(context instanceof LoginActivity) {
+                ((LoginActivity)context).runOnUiThread(new Runnable() {
+                    @Override public void run() {
+                        final LayoutInflater inflater = ((LoginActivity) context).getLayoutInflater();
+                        final View layout = inflater.inflate(R.layout.toast_layout, (ViewGroup)((LoginActivity)context).findViewById(R.id.custom_toast_container));
+                        final Toast toast = new Toast(context);
+                        toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 60);
+                        toast.setView(layout);
+                        toast.show();
+                    }
+                });
+            }
         }
     }
 }

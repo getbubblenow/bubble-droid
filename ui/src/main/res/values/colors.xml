@@ -42,4 +42,5 @@
     <color name="sign_in_disable_end_color">#DF9BDF</color>
     <color name="sign_in_enable_start_color">#EC2F91</color>
     <color name="sign_in_enable_end_color">#C037C0</color>
+    <color name="toast_color">#4E4E4E</color>
 </resources>
