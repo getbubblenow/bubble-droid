@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
     public static final int LEFT = 16;
     public static final int RIGHT = 16;
+    public static final int TOP = 150;
+    public static final int BOTTOM_CONNECTED = 90;
+    public static final int BOTTOM_DISCONNECTED = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         if (state) {
             bubbleStatus.setText(getString(R.string.connected_bubble));
             bubbleStatus.setTextColor(getResources().getColor(R.color.connectedColor));
-            bubbleStatus.setPadding(LEFT, 160, RIGHT,100);
+            bubbleStatus.setPadding(LEFT, TOP, RIGHT,BOTTOM_CONNECTED);
             connectButton.setText(getString(R.string.disconnect));
             imageMyBubble.setImageResource(R.drawable.bubble_connected);
             mark.setVisibility(View.VISIBLE);
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             bubbleStatus.setText(getString(R.string.not_connected_bubble));
             bubbleStatus.setTextColor(getResources().getColor(R.color.gray));
-            bubbleStatus.setPadding(LEFT,140,RIGHT,130);
+            bubbleStatus.setPadding(LEFT,TOP,RIGHT,BOTTOM_DISCONNECTED);
             connectButton.setText(getString(R.string.connect));
             imageMyBubble.setImageResource(R.drawable.bubble_disconnected);
             mark.setVisibility(View.GONE);
