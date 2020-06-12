@@ -264,7 +264,7 @@ public class DataRepository {
                 client.newCall(request).enqueue(new Callback() {
                     @Override public void onFailure(final okhttp3.Call call, final IOException e) {
                         showNetworkNotAvailableMessage(e,context);
-                        setMutableLiveData(StatusResource.error(e.getMessage()));
+                        postMutableLiveData(StatusResource.error(e.getMessage()));
                     }
 
                     @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
