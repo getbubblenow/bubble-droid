@@ -30,7 +30,7 @@
                 android:letterSpacing="-0.02"
                 android:text="@string/my_bubble"
                 android:textColor="@color/black"
-                android:textSize="30sp"
+                android:textSize="@dimen/bubble_connection_title_text_size"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.498"
@@ -136,8 +136,8 @@
 
     <ImageButton
         android:id="@+id/myBubbleImageView"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
+        android:layout_width="@dimen/icons_size"
+        android:layout_height="@dimen/icons_size"
         android:layout_marginStart="@dimen/margin_start_and_end"
         android:layout_marginBottom="44dp"
         android:background="@drawable/my_bubble"
@@ -148,8 +148,8 @@
 
             <ImageButton
                 android:id="@+id/accountImageView"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
+                android:layout_width="@dimen/icons_size"
+                android:layout_height="@dimen/icons_size"
                 android:layout_marginStart="@dimen/margin_start_and_end"
                 android:layout_marginEnd="@dimen/margin_start_and_end"
                 android:background="@drawable/account"

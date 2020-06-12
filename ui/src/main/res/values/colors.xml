@@ -35,4 +35,11 @@
     <color name="colorPrimaryDark">#b5e6ff</color>
     <color name="colorAccent">#FF4081</color>
     <color name="connectedColor">#17AEA6</color>
+    <color name="main_background_start_color">#19ACB0</color>
+    <color name="main_background_center_color">#1BB29C</color>
+    <color name="main_background_end_color">#1DC39E</color>
+    <color name="sign_in_disable_start_color">#F597C8</color>
+    <color name="sign_in_disable_end_color">#DF9BDF</color>
+    <color name="sign_in_enable_start_color">#EC2F91</color>
+    <color name="sign_in_enable_end_color">#C037C0</color>
 </resources>

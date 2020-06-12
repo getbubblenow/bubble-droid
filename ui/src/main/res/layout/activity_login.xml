@@ -190,7 +190,7 @@
             android:id="@+id/signButton"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/sign_in_button"
+            android:background="@drawable/sign_in_disable"
             android:enabled="false"
             android:text="@string/sign_in"
             android:textAlignment="center"
