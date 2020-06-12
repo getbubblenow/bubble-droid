@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import com.wireguard.android.Application;
@@ -31,6 +32,8 @@ import com.wireguard.config.Config;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,6 +117,7 @@ public class DataRepository {
                                 getAllDevices(context);
                             }
                         }, throwable -> {
+                            showNetworkNotAvailableMessage(throwable,context);
                             setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableLogin);
@@ -139,6 +143,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
+                            showNetworkNotAvailableMessage(throwable,context);
                             setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableAllDevices);
@@ -193,6 +198,7 @@ public class DataRepository {
                                                 UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                 getConfig(context);
                                             }, throwable -> {
+                                                showNetworkNotAvailableMessage(throwable,context);
                                                 setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
                                     compositeDisposable.add(disposableAddDevice);
@@ -231,6 +237,7 @@ public class DataRepository {
                                                     UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                     getConfig(context);
                                                 }, throwable -> {
+                                                    showNetworkNotAvailableMessage(throwable,context);
                                                     setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
                                         compositeDisposable.add(disposableAddDevice);
@@ -238,6 +245,7 @@ public class DataRepository {
                                 }
                             }
                         }, throwable -> {
+                            showNetworkNotAvailableMessage(throwable,context);
                             setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
@@ -252,6 +260,7 @@ public class DataRepository {
                         .build();
                 client.newCall(request).enqueue(new Callback() {
                     @Override public void onFailure(final okhttp3.Call call, final IOException e) {
+                        showNetworkNotAvailableMessage(e,context);
                         setMutableLiveData(StatusResource.error(e.getMessage()));
                     }
 
@@ -445,5 +454,13 @@ public class DataRepository {
             }
         });
         return liveData;
+    }
+
+    private void showNetworkNotAvailableMessage(Throwable throwable , Context context){
+        if( throwable instanceof UnknownHostException || throwable instanceof ConnectException){
+            Toast toast = Toast.makeText(context,context.getString(R.string.network_not_found),Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP | Gravity.START,90,60);
+            toast.show();
+        }
     }
 }

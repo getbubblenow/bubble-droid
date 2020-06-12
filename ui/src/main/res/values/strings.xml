@@ -256,4 +256,5 @@
     <string name="you_can_find_your_bubble_name_in_your_email">You can find your Bubble name in your email</string>
     <string name="enter_your_bubble_name">Enter your Bubble Name</string>
     <string name="your_private_bubble">Your private Bubble provides \n protection on this device.</string>
+    <string name="network_not_found">Sorry, friends. Network not currently available.</string>
 </resources>
