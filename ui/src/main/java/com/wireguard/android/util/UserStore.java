@@ -12,10 +12,12 @@ public class UserStore {
     private static final String DEVICE_DATA_KEY = "com.wireguard.android.util.bubbleDeviceResponse";
     private static final String DEVICE_ID_KEY = "com.wireguard.android.util.bubbleDeviceIDResponse";
     private static final String USER_BASE_URL_KEY = "com.wireguard.android.util.bubbleUserURLResponse";
+    private static final String HOSTNAME_KEY = "com.wireguard.android.util.bubbleHostnameResponse";
     public  static final String USER_TOKEN_DEFAULT_VALUE = "";
     public static final String DEVICE_DEFAULT_VALUE = "";
     public static final String DEVICE_ID_DEFAULT_VALUE = "";
     public static final String USER_BASE_URL_DEFAULT_VALUE = "";
+    private static final String HOSTNAME_DEFAULT_VALUE = "";
 
     public static UserStore getInstance(Context context) {
         if (instance == null) {
@@ -60,5 +62,13 @@ public class UserStore {
 
     public String getUserURL(){
         return sharedPreferences.getString(USER_BASE_URL_KEY,USER_BASE_URL_DEFAULT_VALUE);
+    }
+
+    public void setHostname(String hostName){
+        sharedPreferences.edit().putString(HOSTNAME_KEY,hostName).apply();
+    }
+
+    public String getHostname(){
+        return sharedPreferences.getString(HOSTNAME_KEY,HOSTNAME_DEFAULT_VALUE);
     }
 }

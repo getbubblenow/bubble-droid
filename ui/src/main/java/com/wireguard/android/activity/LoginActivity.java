@@ -203,6 +203,7 @@ public class LoginActivity extends BaseActivityBubble {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
+            loginViewModel.setHostName(this,bubbleName.getText().toString().trim());
             Log.d("TAG", "Success");
             final Intent mainActivityIntent = new Intent(this, MainActivity.class);
             mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

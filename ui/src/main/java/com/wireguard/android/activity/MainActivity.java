@@ -5,10 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.wireguard.android.R;
@@ -22,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private Button connectButton;
     private ImageView imageMyBubble;
     private ImageView mark;
+    private ImageButton myBubbleButton;
+    private ImageButton accountButton;
     private boolean connectionStateFlag;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
@@ -30,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int CONNECTED_TEXT_VIEW_TOP_MARGIN = 150;
     public static final int DISCONNECTED_TEXT_VIEW_BOTTOM_MARGIN = 90;
     public static final int CONNECTED_TEXT_VIEW_BOTTOM_MARGIN = 100;
+    private static final String BASE_URL_PREFIX = "https://";
+    private static final String BASE_URL_SUFFIX_MY_BUBBLE = ":1443/";
+    private static final String BASE_URL_SUFFIX_ACCOUNT = ":1443/me";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
         imageMyBubble = findViewById(R.id.imageMyBubble);
         mark = findViewById(R.id.mark);
         titleMyBubble = findViewById(R.id.titleMyBubble);
+        myBubbleButton = findViewById(R.id.myBubbleButton);
+        accountButton = findViewById(R.id.accountButton);
     }
 
     private void initListeners() {
@@ -76,6 +85,32 @@ public class MainActivity extends AppCompatActivity {
                 connect();
             }
         });
+        myBubbleButton.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(final View v) {
+                showMyBubble();
+            }
+        });
+        accountButton.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(final View v) {
+                showAccount();
+            }
+        });
+    }
+
+    private void showAccount() {
+        final String hostname = mainViewModel.getHostname(this);
+        final String url = BASE_URL_PREFIX + hostname + BASE_URL_SUFFIX_ACCOUNT;
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
+    }
+
+    private void showMyBubble() {
+        final String hostname = mainViewModel.getHostname(this);
+        final String url = BASE_URL_PREFIX + hostname + BASE_URL_SUFFIX_MY_BUBBLE;
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        startActivity(intent);
     }
 
     private void connect() {

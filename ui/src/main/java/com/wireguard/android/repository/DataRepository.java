@@ -476,4 +476,12 @@ public class DataRepository {
             }
         }
     }
+
+    public void setHostName(Context context, String hostname){
+        UserStore.getInstance(context).setHostname(hostname);
+    }
+
+    public String getHostname(Context context){
+        return UserStore.getInstance(context).getHostname();
+    }
 }
