@@ -200,8 +200,9 @@ public class LoginActivity extends BaseActivityBubble {
                         if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
                             showNetworkNotAvailableMessage();
                         }
-                        Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
-                        Log.d("TAG", "Error");
+                        else {
+                            showErrorDialog(userStatusResource.message);
+                        }
                         break;
                 }
             }

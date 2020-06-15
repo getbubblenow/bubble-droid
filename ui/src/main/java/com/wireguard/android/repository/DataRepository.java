@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
@@ -49,10 +50,15 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
 import retrofit2.Call;
+import retrofit2.HttpException;
 
 public class DataRepository {
     private static volatile DataRepository instance;
@@ -467,6 +473,30 @@ public class DataRepository {
     private void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<User> liveData){
         if( throwable instanceof UnknownHostException || throwable instanceof ConnectException){
            liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
+        }
+        if(throwable instanceof HttpException){
+            if(((HttpException) throwable).code() == 500){
+                final String requestURL = ((HttpException) throwable).response().raw().request().url().toString();
+                final String requestMethod = ((HttpException) throwable).response().raw().request().method();
+                final String requestBody = bodyToString(((HttpException) throwable).response().raw().request());
+                final String stackTrace = Arrays.toString(throwable.getStackTrace());
+                final String message = "URL:" + requestURL + '\n' +
+                       "BODY:" + requestBody + '\n' +
+                       "METHOD:" + requestMethod + '\n' +
+                       "STACK_TRACE:" + stackTrace;
+                liveData.postMutableLiveData(StatusResource.error(message));
+            }
+        }
+    }
+
+    private String bodyToString(final Request request){
+        try {
+            final Request copy = request.newBuilder().build();
+            final Buffer buffer = new Buffer();
+            copy.body().writeTo(buffer);
+            return buffer.readUtf8();
+        } catch (final IOException e) {
+            return "did not work";
         }
     }
 }

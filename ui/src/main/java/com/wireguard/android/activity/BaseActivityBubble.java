@@ -1,19 +1,15 @@
 package com.wireguard.android.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.wireguard.android.R;
+import com.wireguard.android.fragment.ErrorDialogFragment;
 import com.wireguard.android.fragment.LoadingDialogFragment;
-
-import java.net.ConnectException;
-import java.net.UnknownHostException;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,10 +19,12 @@ public class BaseActivityBubble extends AppCompatActivity {
 
     public static final String LOADING_TAG = "loading_tag";
     public static final String NO_CONNECTION_TAG = "no_connection_tag";
+    public static final String ERROR_TAG = "error_tag";
     public static final String RATE_TAG = "rate tag";
     private final long LOADER_DELAY = 1000;
 
     private LoadingDialogFragment loadingDialog;
+    private ErrorDialogFragment errorDialog;
     private boolean showDialog = true;
 
     @Override
@@ -78,6 +76,14 @@ public class BaseActivityBubble extends AppCompatActivity {
         toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 60);
         toast.setView(layout);
         toast.show();
+    }
+
+    public void showErrorDialog(String message){
+        errorDialog = ErrorDialogFragment.newInstance();
+        final Bundle bundle = new Bundle();
+        bundle.putString("message",message);
+        errorDialog.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().add(errorDialog,ERROR_TAG).commitAllowingStateLoss();
     }
 
 }
