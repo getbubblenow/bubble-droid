@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_background"
+    android:background="@drawable/bkrnd"
     tools:context="com.wireguard.android.activity.MainActivity">
 
 
@@ -19,36 +19,36 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-            <TextView
-                android:id="@+id/bubbleConnectionTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_start_and_end"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="@dimen/margin_start_and_end"
-                android:fontFamily="@font/josefin_sans"
-                android:letterSpacing="-0.02"
-                android:text="@string/my_bubble"
-                android:textColor="@color/black"
-                android:textSize="@dimen/bubble_connection_title_text_size"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/bubbleConnectionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:fontFamily="@font/josefin_sans"
+        android:letterSpacing="-0.02"
+        android:text="@string/my_bubble"
+        android:textColor="@color/black"
+        android:textSize="@dimen/bubble_connection_title_text_size"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_start_and_end"
-                android:layout_marginTop="@dimen/margin_start_and_end"
-                android:layout_marginEnd="@dimen/margin_start_and_end"
-                android:text="@string/your_private_bubble"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/bubbleConnectionTitle" />
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginTop="@dimen/margin_start_and_end"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:text="@string/your_private_bubble"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bubbleConnectionTitle" />
 
 
     <ImageView
@@ -84,9 +84,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_start_and_end"
         android:layout_marginTop="80dp"
-        android:visibility="gone"
         android:layout_marginEnd="@dimen/margin_start_and_end"
         android:src="@drawable/mark"
+        android:visibility="gone"
 
         app:layout_constraintEnd_toEndOf="@+id/imageMyBubble"
         app:layout_constraintStart_toStartOf="@+id/imageMyBubble"
@@ -135,29 +135,29 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/myBubbleImageView"
+        android:id="@+id/myBubbleButton"
         android:layout_width="@dimen/icons_size"
         android:layout_height="@dimen/icons_size"
         android:layout_marginStart="@dimen/margin_start_and_end"
         android:layout_marginBottom="44dp"
         android:background="@drawable/my_bubble"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/accountImageView"
+        app:layout_constraintEnd_toStartOf="@+id/accountButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageButton
-                android:id="@+id/accountImageView"
-                android:layout_width="@dimen/icons_size"
-                android:layout_height="@dimen/icons_size"
-                android:layout_marginStart="@dimen/margin_start_and_end"
-                android:layout_marginEnd="@dimen/margin_start_and_end"
-                android:background="@drawable/account"
-                app:layout_constraintBottom_toBottomOf="@+id/myBubbleImageView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/myBubbleImageView"
-                app:layout_constraintTop_toTopOf="@+id/myBubbleImageView" />
+    <ImageButton
+        android:id="@+id/accountButton"
+        android:layout_width="@dimen/icons_size"
+        android:layout_height="@dimen/icons_size"
+        android:layout_marginStart="@dimen/margin_start_and_end"
+        android:layout_marginEnd="@dimen/margin_start_and_end"
+        android:background="@drawable/account"
+        app:layout_constraintBottom_toBottomOf="@+id/myBubbleButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/myBubbleButton"
+        app:layout_constraintTop_toTopOf="@+id/myBubbleButton" />
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -166,9 +166,9 @@
         android:layout_marginTop="32dp"
         android:background="@drawable/home"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/accountImageView"
-        app:layout_constraintStart_toEndOf="@+id/myBubbleImageView"
-        app:layout_constraintTop_toTopOf="@+id/myBubbleImageView" />
+        app:layout_constraintEnd_toStartOf="@+id/accountButton"
+        app:layout_constraintStart_toEndOf="@+id/myBubbleButton"
+        app:layout_constraintTop_toTopOf="@+id/myBubbleButton" />
 
     <androidx.constraintlayout.widget.Constraints
         android:id="@+id/constraints"

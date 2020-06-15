@@ -6,7 +6,6 @@ import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.widget.Toast;
-
 import com.wireguard.android.Application;
 import com.wireguard.android.R;
 import com.wireguard.android.activity.MainActivity;
@@ -31,6 +30,8 @@ import com.wireguard.config.Config;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +62,6 @@ public class DataRepository {
     private TunnelManager tunnelManager;
     private ObservableTunnel pendingTunnel;
 
-    public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
     private static final String SEPARATOR = ":";
     private static final String SPACE = " ";
     private static final String DELIMITER = "\\A";
@@ -69,6 +69,7 @@ public class DataRepository {
     private static String BASE_URL = "";
     private static final String TUNNEL_NAME = "BubbleVPN";
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
+    private static final String NO_INTERNET_CONNECTION = "no internet connection";
 
     private DataRepository(Context context, String url) {
         BASE_URL = url;
@@ -114,7 +115,8 @@ public class DataRepository {
                                 getAllDevices(context);
                             }
                         }, throwable -> {
-                            setMutableLiveData(StatusResource.error(throwable.getMessage()));
+                            setErrorMessage(throwable,this);
+                          //  setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableLogin);
             }
@@ -139,7 +141,8 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-                            setMutableLiveData(StatusResource.error(throwable.getMessage()));
+                            setErrorMessage(throwable,this);
+                           // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -193,7 +196,8 @@ public class DataRepository {
                                                 UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                 getConfig(context);
                                             }, throwable -> {
-                                                setMutableLiveData(StatusResource.error(throwable.getMessage()));
+                                                setErrorMessage(throwable,this);
+                                               // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
                                     compositeDisposable.add(disposableAddDevice);
                                 } else {
@@ -231,19 +235,22 @@ public class DataRepository {
                                                     UserStore.getInstance(context).setDevice(device.getName(), device.getUuid());
                                                     getConfig(context);
                                                 }, throwable -> {
-                                                    setMutableLiveData(StatusResource.error(throwable.getMessage()));
+                                                    setErrorMessage(throwable,this);
+                                                   // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
                                         compositeDisposable.add(disposableAddDevice);
                                     }
                                 }
                             }
                         }, throwable -> {
-                            setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
+                            setErrorMessage(throwable,this);
+                         //   setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
 
             private void getConfig(Context context) {
+                NetworkBoundStatusResource<User> liveData = this;
                 final String deviceID = UserStore.getInstance(context).getDeviceID();
                 final String token = UserStore.getInstance(context).getToken();
                 Request request = new Request.Builder()
@@ -252,7 +259,8 @@ public class DataRepository {
                         .build();
                 client.newCall(request).enqueue(new Callback() {
                     @Override public void onFailure(final okhttp3.Call call, final IOException e) {
-                        setMutableLiveData(StatusResource.error(e.getMessage()));
+                        setErrorMessage(e,liveData);
+                      //  postMutableLiveData(StatusResource.error(e.getMessage()));
                     }
 
                     @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
@@ -373,7 +381,7 @@ public class DataRepository {
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override public void onFailure(final okhttp3.Call call, final IOException e) {
-                liveData.postValue(new byte[]{});
+                liveData.postValue(new byte[]{1});
             }
 
             @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
@@ -445,5 +453,20 @@ public class DataRepository {
             }
         });
         return liveData;
+    }
+
+
+    public void setHostName(Context context, String hostname){
+        UserStore.getInstance(context).setHostname(hostname);
+    }
+
+    public String getHostname(Context context){
+        return UserStore.getInstance(context).getHostname();
+    }
+
+    private void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<User> liveData){
+        if( throwable instanceof UnknownHostException || throwable instanceof ConnectException){
+           liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
+        }
     }
 }

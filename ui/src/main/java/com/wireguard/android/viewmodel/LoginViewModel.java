@@ -36,4 +36,8 @@ public class LoginViewModel extends ViewModel {
     public MutableLiveData<byte[]> getCertificate(Context context){
         return DataRepository.getRepositoryInstance().getCertificate(context);
     }
+
+    public void setHostName(Context context, String hostname){
+        DataRepository.getRepositoryInstance().setHostName(context,hostname);
+    }
 }

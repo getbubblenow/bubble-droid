@@ -41,6 +41,7 @@ public class LoginActivity extends BaseActivityBubble {
     private static final String BUBBLE_NAME_KEY = "bubbleName";
     private static final String USER_NAME_KEY = "userName";
     private static final String PASSWORD_KEY = "password";
+    private static final String NO_INTERNET_CONNECTION = "no internet connection";
 
 
     @Override
@@ -175,9 +176,14 @@ public class LoginActivity extends BaseActivityBubble {
                         loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
                             @Override public void onChanged(final byte[] encodedCertificate) {
                                 closeLoadingDialog();
+                                //TODO change implementation login function, function has be return certificate data
                                 if (encodedCertificate.length == 0) {
                                     Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
-                                } else {
+                                }
+                                else if(encodedCertificate.length == 1){
+                                    showNetworkNotAvailableMessage();
+                                }
+                                else {
                                     final Intent intent = KeyChain.createInstallIntent();
                                     intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
                                     intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
@@ -191,6 +197,9 @@ public class LoginActivity extends BaseActivityBubble {
                         break;
                     case ERROR:
                         closeLoadingDialog();
+                        if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
+                            showNetworkNotAvailableMessage();
+                        }
                         Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                         Log.d("TAG", "Error");
                         break;
@@ -203,6 +212,7 @@ public class LoginActivity extends BaseActivityBubble {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
+            loginViewModel.setHostName(this,bubbleName.getText().toString().trim());
             Log.d("TAG", "Success");
             final Intent mainActivityIntent = new Intent(this, MainActivity.class);
             mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

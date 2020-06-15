@@ -39,4 +39,8 @@ public class MainViewModel extends ViewModel {
     public boolean isVPNConnected(Context context, boolean connectionStateFlag) {
         return DataRepository.getRepositoryInstance().isVPNConnected(context,connectionStateFlag);
     }
+
+    public String getHostname(Context context){
+        return DataRepository.getRepositoryInstance().getHostname(context);
+    }
 }

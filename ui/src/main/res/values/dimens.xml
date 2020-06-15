@@ -16,4 +16,5 @@
     <dimen name="edit_text_height">55dp</dimen>
     <dimen name="bubble_connection_title_text_size">30sp</dimen>
     <dimen name="icons_size">90dp</dimen>
+    <dimen name="toast_text_size">14sp</dimen>
 </resources>
