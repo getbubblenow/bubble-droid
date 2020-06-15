@@ -177,7 +177,11 @@ public class LoginActivity extends BaseActivityBubble {
                                 closeLoadingDialog();
                                 if (encodedCertificate.length == 0) {
                                     Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
-                                } else {
+                                }
+                                else if(encodedCertificate.length == 1){
+                                    showNetworkNotAvailableMessage(LoginActivity.this);
+                                }
+                                else {
                                     final Intent intent = KeyChain.createInstallIntent();
                                     intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
                                     intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
@@ -191,6 +195,9 @@ public class LoginActivity extends BaseActivityBubble {
                         break;
                     case ERROR:
                         closeLoadingDialog();
+                        if("no network".equals(userStatusResource.message)){
+                            showNetworkNotAvailableMessage(LoginActivity.this);
+                        }
                         Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                         Log.d("TAG", "Error");
                         break;

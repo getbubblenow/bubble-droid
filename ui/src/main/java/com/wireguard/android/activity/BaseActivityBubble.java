@@ -1,8 +1,20 @@
 package com.wireguard.android.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.wireguard.android.R;
 import com.wireguard.android.fragment.LoadingDialogFragment;
+
+import java.net.ConnectException;
+import java.net.UnknownHostException;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
@@ -56,6 +68,21 @@ public class BaseActivityBubble extends AppCompatActivity {
                 && loadingDialog.getDialog().isShowing()
                 && !loadingDialog.isRemoving()) {
             loadingDialog.dismissAllowingStateLoss();
+        }
+    }
+
+    protected void showNetworkNotAvailableMessage(Context context) {
+        if (context instanceof LoginActivity) {
+            ((LoginActivity) context).runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    final LayoutInflater inflater = ((LoginActivity) context).getLayoutInflater();
+                    final View layout = inflater.inflate(R.layout.toast_layout, (ViewGroup) ((LoginActivity) context).findViewById(R.id.custom_toast_container));
+                    final Toast toast = new Toast(context);
+                    toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 60);
+                    toast.setView(layout);
+                    toast.show();
+                }
+            });
         }
     }
 }
