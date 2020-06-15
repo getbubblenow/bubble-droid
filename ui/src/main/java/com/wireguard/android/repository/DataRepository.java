@@ -5,14 +5,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 import com.wireguard.android.Application;
 import com.wireguard.android.R;
-import com.wireguard.android.activity.LoginActivity;
 import com.wireguard.android.activity.MainActivity;
 import com.wireguard.android.api.ApiConstants;
 import com.wireguard.android.api.network.ClientApi;
@@ -67,7 +62,6 @@ public class DataRepository {
     private TunnelManager tunnelManager;
     private ObservableTunnel pendingTunnel;
 
-    public static final String NO_INTERNET_CONNECTION = "no_internet_connection";
     private static final String SEPARATOR = ":";
     private static final String SPACE = " ";
     private static final String DELIMITER = "\\A";
@@ -75,6 +69,7 @@ public class DataRepository {
     private static String BASE_URL = "";
     private static final String TUNNEL_NAME = "BubbleVPN";
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
+    private static final String NO_INTERNET_CONNECTION = "no internet connection";
 
     private DataRepository(Context context, String url) {
         BASE_URL = url;
@@ -471,7 +466,7 @@ public class DataRepository {
 
     private void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<User> liveData){
         if( throwable instanceof UnknownHostException || throwable instanceof ConnectException){
-           liveData.postMutableLiveData(StatusResource.error("no network"));
+           liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
         }
     }
 }

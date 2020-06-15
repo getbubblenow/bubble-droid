@@ -71,18 +71,13 @@ public class BaseActivityBubble extends AppCompatActivity {
         }
     }
 
-    protected void showNetworkNotAvailableMessage(Context context) {
-        if (context instanceof LoginActivity) {
-            ((LoginActivity) context).runOnUiThread(new Runnable() {
-                @Override public void run() {
-                    final LayoutInflater inflater = ((LoginActivity) context).getLayoutInflater();
-                    final View layout = inflater.inflate(R.layout.toast_layout, (ViewGroup) ((LoginActivity) context).findViewById(R.id.custom_toast_container));
-                    final Toast toast = new Toast(context);
-                    toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 60);
-                    toast.setView(layout);
-                    toast.show();
-                }
-            });
-        }
+    protected void showNetworkNotAvailableMessage() {
+        final LayoutInflater inflater = getLayoutInflater();
+        final View layout = inflater.inflate(R.layout.toast_layout, findViewById(R.id.custom_toast_container));
+        final Toast toast = new Toast(this);
+        toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 60);
+        toast.setView(layout);
+        toast.show();
     }
+
 }

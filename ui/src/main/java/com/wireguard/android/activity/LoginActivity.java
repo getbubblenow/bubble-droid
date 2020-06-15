@@ -41,6 +41,7 @@ public class LoginActivity extends BaseActivityBubble {
     private static final String BUBBLE_NAME_KEY = "bubbleName";
     private static final String USER_NAME_KEY = "userName";
     private static final String PASSWORD_KEY = "password";
+    private static final String NO_INTERNET_CONNECTION = "no internet connection";
 
 
     @Override
@@ -175,11 +176,12 @@ public class LoginActivity extends BaseActivityBubble {
                         loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
                             @Override public void onChanged(final byte[] encodedCertificate) {
                                 closeLoadingDialog();
+                                //TODO change implementation login function, function has be return certificate data
                                 if (encodedCertificate.length == 0) {
                                     Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
                                 }
                                 else if(encodedCertificate.length == 1){
-                                    showNetworkNotAvailableMessage(LoginActivity.this);
+                                    showNetworkNotAvailableMessage();
                                 }
                                 else {
                                     final Intent intent = KeyChain.createInstallIntent();
@@ -195,8 +197,8 @@ public class LoginActivity extends BaseActivityBubble {
                         break;
                     case ERROR:
                         closeLoadingDialog();
-                        if("no network".equals(userStatusResource.message)){
-                            showNetworkNotAvailableMessage(LoginActivity.this);
+                        if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
+                            showNetworkNotAvailableMessage();
                         }
                         Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                         Log.d("TAG", "Error");
