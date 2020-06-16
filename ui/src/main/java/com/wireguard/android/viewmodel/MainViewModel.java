@@ -43,4 +43,8 @@ public class MainViewModel extends ViewModel {
     public String getHostname(Context context){
         return DataRepository.getRepositoryInstance().getHostname(context);
     }
+
+    public void removeSharedPreferences(Context context){
+        DataRepository.getRepositoryInstance().removeSharedPreferences(context);
+    }
 }

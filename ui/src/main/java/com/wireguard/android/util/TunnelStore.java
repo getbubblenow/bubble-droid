@@ -7,7 +7,7 @@ public class TunnelStore {
     private static TunnelStore instance;
     private SharedPreferences sharedPreferences;
 
-    private static final String TUNNEL_SHARED_PREF = "com.wireguard.android.util.bubbleTunnelSharedPref";
+    public static final String TUNNEL_SHARED_PREF = "com.wireguard.android.util.bubbleTunnelSharedPref";
     private static final String TUNNEL_DATA_KEY = "com.wireguard.android.util.bubbleResponse";
     private static final String CONFIG_DATA_KEY = "com.wireguard.android.util.bubbleConfigResponse";
     public static final String TUNNEL_DEFAULT_VALUE = "";
