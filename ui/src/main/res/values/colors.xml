@@ -43,4 +43,5 @@
     <color name="sign_in_enable_start_color">#EC2F91</color>
     <color name="sign_in_enable_end_color">#C037C0</color>
     <color name="toast_color">#4E4E4E</color>
+    <color name="logout">#159F97</color>
 </resources>

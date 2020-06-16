@@ -499,4 +499,9 @@ public class DataRepository {
             return "did not work";
         }
     }
+
+    public void removeSharedPreferences(Context context){
+        context.getSharedPreferences(UserStore.USER_SHARED_PREF,0).edit().clear().apply();
+        context.getSharedPreferences(TunnelStore.TUNNEL_SHARED_PREF,0).edit().clear().apply();
+    }
 }

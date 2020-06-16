@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mark;
     private ImageButton myBubbleButton;
     private ImageButton accountButton;
+    private TextView logout;
     private boolean connectionStateFlag;
 
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         titleMyBubble = findViewById(R.id.titleMyBubble);
         myBubbleButton = findViewById(R.id.myBubbleButton);
         accountButton = findViewById(R.id.accountButton);
+        logout = findViewById(R.id.logout);
     }
 
     private void initListeners() {
@@ -93,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
         accountButton.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
                 showAccount();
+            }
+        });
+        logout.setOnClickListener(new OnClickListener() {
+            @Override public void onClick(final View v) {
+                logout();
             }
         });
     }
@@ -158,5 +165,12 @@ public class MainActivity extends AppCompatActivity {
             mark.setVisibility(View.GONE);
             titleMyBubble.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void logout(){
+        final Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mainViewModel.removeSharedPreferences(MainActivity.this);
+        startActivity(intent);
     }
 }

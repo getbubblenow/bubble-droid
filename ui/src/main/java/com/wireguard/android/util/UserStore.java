@@ -7,7 +7,7 @@ public class UserStore {
     private static UserStore instance;
     private SharedPreferences sharedPreferences;
 
-    private static final String USER_SHARED_PREF = "com.wireguard.android.util.bubbleUserSharedPref";
+    public static final String USER_SHARED_PREF = "com.wireguard.android.util.bubbleUserSharedPref";
     private static final String USER_DATA_KEY = "com.wireguard.android.util.bubbleUserResponse";
     private static final String DEVICE_DATA_KEY = "com.wireguard.android.util.bubbleDeviceResponse";
     private static final String DEVICE_ID_KEY = "com.wireguard.android.util.bubbleDeviceIDResponse";
