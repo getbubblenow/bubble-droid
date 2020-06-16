@@ -475,7 +475,7 @@ public class DataRepository {
            liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
         }
         if(throwable instanceof HttpException){
-            if(((HttpException) throwable).code() == 404){
+            if(((HttpException) throwable).code() == 500){
                 final String requestURL = ((HttpException) throwable).response().raw().request().url().toString();
                 final String requestMethod = ((HttpException) throwable).response().raw().request().method();
                 final String requestBody = bodyToString(((HttpException) throwable).response().raw().request());
