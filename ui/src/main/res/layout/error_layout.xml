@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_start_and_end"
-        android:layout_marginTop="49dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="@dimen/margin_start_and_end"
         android:fontFamily="@font/josefin_sans"
         android:text="@string/error_title"
@@ -25,10 +25,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:layout_width="430dp"
-        android:layout_height="430dp"
+        android:layout_width="420dp"
+        android:layout_height="400dp"
         android:layout_marginStart="@dimen/margin_start_and_end"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="230dp"
         android:layout_marginEnd="@dimen/margin_start_and_end"
         android:scaleType="fitXY"
         android:src="@drawable/error_face"
@@ -43,7 +43,7 @@
         android:layout_height="@dimen/edit_text_height"
         android:layout_marginStart="@dimen/margin_start_and_end"
         android:layout_marginEnd="@dimen/margin_start_and_end"
-        android:layout_marginBottom="33dp"
+        android:layout_marginBottom="20dp"
         android:background="@android:color/transparent"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,5 +1,6 @@
 package com.getbubblenow.android.fragment;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import com.getbubblenow.android.R;
+import com.getbubblenow.android.activity.BaseActivityBubble;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +43,21 @@ public class ErrorDialogFragment extends DialogFragment {
             message = bundle.getString("message");
         }
         initUI(view,message);
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        final Dialog dialog = new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                if (getActivity().getSupportFragmentManager().findFragmentByTag(BaseActivityBubble.LOADING_TAG) != null) {
+                    getActivity().onBackPressed();
+                }
+                super.onBackPressed();
+            }
+        };
+        return dialog;
     }
 
     private void initUI(View view, String message) {
