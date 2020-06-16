@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bkrnd"
-    tools:context="com.wireguard.android.activity.MainActivity">
+    tools:context="com.getbubblenow.android.activity.MainActivity">
 
 
     <ImageView

@@ -6,21 +6,21 @@
 
         <import type="android.view.View" />
 
-        <import type="com.wireguard.android.widget.KeyInputFilter" />
+        <import type="com.getbubblenow.android.widget.KeyInputFilter" />
 
-        <import type="com.wireguard.android.databinding.BindingAdapters" />
+        <import type="com.getbubblenow.android.databinding.BindingAdapters" />
 
         <variable
             name="collection"
-            type="androidx.databinding.ObservableList&lt;com.wireguard.android.viewmodel.PeerProxy&gt;" />
+            type="androidx.databinding.ObservableList&lt;com.getbubblenow.android.viewmodel.PeerProxy&gt;" />
 
         <variable
             name="item"
-            type="com.wireguard.android.viewmodel.PeerProxy" />
+            type="com.getbubblenow.android.viewmodel.PeerProxy" />
 
         <variable
             name="fragment"
-            type="com.wireguard.android.fragment.TunnelEditorFragment" />
+            type="com.getbubblenow.android.fragment.TunnelEditorFragment" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -88,7 +88,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/public_key_label_layout">
 
-                <com.wireguard.android.widget.MonkeyedTextInputEditText
+                <com.getbubblenow.android.widget.MonkeyedTextInputEditText
                     android:id="@+id/pre_shared_key_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,7 +111,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/pre_shared_key_label_layout">
 
-                <com.wireguard.android.widget.MonkeyedTextInputEditText
+                <com.getbubblenow.android.widget.MonkeyedTextInputEditText
                     android:id="@+id/persistent_keepalive_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

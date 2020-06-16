@@ -1,0 +1,108 @@
+package com.getbubblenow.android.preference
+
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.util.AttributeSet
+import android.util.Log
+import androidx.preference.Preference
+import com.google.android.material.snackbar.Snackbar
+import com.getbubblenow.android.Application
+import com.getbubblenow.android.R
+import com.getbubblenow.android.model.ObservableTunnel
+import com.getbubblenow.android.util.BiometricAuthenticator
+import com.getbubblenow.android.util.DownloadsFileSaver
+import com.getbubblenow.android.util.ErrorMessages
+import com.getbubblenow.android.util.FragmentUtils
+import java9.util.concurrent.CompletableFuture
+import java.nio.charset.StandardCharsets
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
+/**
+ * Preference implementing a button that asynchronously exports config zips.
+ */
+class ZipExporterPreference(context: Context, attrs: AttributeSet?) : Preference(context, attrs) {
+    private var exportedFilePath: String? = null
+
+    private fun exportZip() {
+        Application.getTunnelManager().tunnels.thenAccept(this::exportZip)
+    }
+
+    private fun exportZip(tunnels: List<ObservableTunnel>) {
+        val futureConfigs = tunnels.map { it.configAsync.toCompletableFuture() }.toTypedArray()
+        if (futureConfigs.isEmpty()) {
+            exportZipComplete(null, IllegalArgumentException(
+                    context.getString(R.string.no_tunnels_error)))
+            return
+        }
+        CompletableFuture.allOf(*futureConfigs)
+                .whenComplete { _, exception ->
+                    Application.getAsyncWorker().supplyAsync {
+                        if (exception != null) throw exception
+                        val outputFile = DownloadsFileSaver.save(context, "wireguard-export.zip", "application/zip", true)
+                        try {
+                            ZipOutputStream(outputFile.outputStream).use { zip ->
+                                for (i in futureConfigs.indices) {
+                                    zip.putNextEntry(ZipEntry(tunnels[i].name + ".conf"))
+                                    zip.write(futureConfigs[i].getNow(null)!!.toWgQuickString().toByteArray(StandardCharsets.UTF_8))
+                                }
+                                zip.closeEntry()
+                            }
+                        } catch (e: Exception) {
+                            outputFile.delete()
+                            throw e
+                        }
+                        outputFile.fileName
+                    }.whenComplete(this::exportZipComplete)
+                }
+    }
+
+    private fun exportZipComplete(filePath: String?, throwable: Throwable?) {
+        if (throwable != null) {
+            val error = ErrorMessages[throwable]
+            val message = context.getString(R.string.zip_export_error, error)
+            Log.e(TAG, message, throwable)
+            Snackbar.make(
+                    FragmentUtils.getPrefActivity(this).findViewById(android.R.id.content),
+                    message, Snackbar.LENGTH_LONG).show()
+            isEnabled = true
+        } else {
+            exportedFilePath = filePath
+            notifyChanged()
+        }
+    }
+
+    override fun getSummary() = if (exportedFilePath == null) context.getString(R.string.zip_export_summary) else context.getString(R.string.zip_export_success, exportedFilePath)
+
+    override fun getTitle() = context.getString(R.string.zip_export_title)
+
+    override fun onClick() {
+        val prefActivity = FragmentUtils.getPrefActivity(this)
+        val fragment = prefActivity.supportFragmentManager.fragments.first()
+        BiometricAuthenticator.authenticate(R.string.biometric_prompt_zip_exporter_title, fragment) {
+            when (it) {
+                // When we have successful authentication, or when there is no biometric hardware available.
+                is BiometricAuthenticator.Result.Success, is BiometricAuthenticator.Result.HardwareUnavailableOrDisabled -> {
+                    prefActivity.ensurePermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)) { _, grantResults ->
+                        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                            isEnabled = false
+                            exportZip()
+                        }
+                    }
+                }
+                is BiometricAuthenticator.Result.Failure -> {
+                    Snackbar.make(
+                            prefActivity.findViewById(android.R.id.content),
+                            it.message,
+                            Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "WireGuard/ZipExporterPreference"
+    }
+}

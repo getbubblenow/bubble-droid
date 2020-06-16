@@ -42,7 +42,7 @@ buildscript {
         rxjavaVersion = '2.1.6'
         adapterrxjava2Version = '2.3.0'
 
-        groupName = 'com.wireguard.android'
+        groupName = 'com.getbubblenow.android'
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${agpVersion}"

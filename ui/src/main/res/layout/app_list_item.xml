@@ -4,11 +4,11 @@
 
     <data>
 
-        <import type="com.wireguard.android.model.ApplicationData" />
+        <import type="com.getbubblenow.android.model.ApplicationData" />
 
         <variable
             name="collection"
-            type="com.wireguard.android.databinding.ObservableKeyedArrayList&lt;String, com.wireguard.android.model.ApplicationData&gt;" />
+            type="com.getbubblenow.android.databinding.ObservableKeyedArrayList&lt;String, com.getbubblenow.android.model.ApplicationData&gt;" />
 
         <variable
             name="key"
@@ -16,7 +16,7 @@
 
         <variable
             name="item"
-            type="com.wireguard.android.model.ApplicationData" />
+            type="com.getbubblenow.android.model.ApplicationData" />
     </data>
 
     <LinearLayout

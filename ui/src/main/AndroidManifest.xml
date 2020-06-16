@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.wireguard.android"
+    package="com.getbubblenow.android"
     android:installLocation="internalOnly">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -28,15 +28,15 @@
         android:protectionLevel="dangerous" />
 
     <application
-        android:name=".Application"
+        android:name="com.getbubblenow.android.Application"
         android:allowBackup="false"
         android:banner="@mipmap/banner"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="@mipmap/app_icon"
+        android:label="@string/bubble_app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BubbleTheme">
-        <activity android:name=".activity.MainActivity"
+        <activity android:name="com.getbubblenow.android.activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.LoginActivity"
+        <activity android:name="com.getbubblenow.android.activity.LoginActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.TunnelToggleActivity"
