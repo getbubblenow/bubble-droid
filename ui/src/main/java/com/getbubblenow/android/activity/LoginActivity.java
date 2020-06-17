@@ -173,28 +173,34 @@ public class LoginActivity extends BaseActivityBubble {
     }
 
     private void login(String username, String password) {
-        loginViewModel.login(username, password, this).observe(this, new Observer<StatusResource<User>>() {
-            @Override public void onChanged(final StatusResource<User> userStatusResource) {
+        loginViewModel.login(username, password, this).observe(this, new Observer<StatusResource<byte[]>>() {
+            @Override public void onChanged(final StatusResource<byte[]> userStatusResource) {
                 switch (userStatusResource.status) {
                     case SUCCESS:
-                        loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
-                            @Override public void onChanged(final byte[] encodedCertificate) {
-                                closeLoadingDialog();
-                                //TODO change implementation login function, function has be return certificate data
-                                if (encodedCertificate.length == 0) {
-                                    Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
-                                }
-                                else if(encodedCertificate.length == 1){
-                                    showNetworkNotAvailableMessage();
-                                }
-                                else {
-                                    final Intent intent = KeyChain.createInstallIntent();
-                                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
-                                    intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-                                    startActivityForResult(intent, REQUEST_CODE);
-                                }
-                            }
-                        });
+                        closeLoadingDialog();
+                        final Intent intent = KeyChain.createInstallIntent();
+                        intent.putExtra(KeyChain.EXTRA_CERTIFICATE, userStatusResource.data);
+                        intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
+                        startActivityForResult(intent, REQUEST_CODE);
+
+//                        loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
+//                            @Override public void onChanged(final byte[] encodedCertificate) {
+//                                closeLoadingDialog();
+//                                //TODO change implementation login function, function has be return certificate data
+//                                if (encodedCertificate.length == 0) {
+//                                    Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
+//                                }
+//                                else if(encodedCertificate.length == 1){
+//                                    showNetworkNotAvailableMessage();
+//                                }
+//                                else {
+//                                    final Intent intent = KeyChain.createInstallIntent();
+//                                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
+//                                    intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
+//                                    startActivityForResult(intent, REQUEST_CODE);
+//                                }
+//                            }
+//                        });
                         break;
                     case LOADING:
                         Log.d("TAG", "Loading");
@@ -216,12 +222,26 @@ public class LoginActivity extends BaseActivityBubble {
     @Override protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
-            loginViewModel.setHostName(this,bubbleName.getText().toString().trim());
-            Log.d("TAG", "Success");
-            final Intent mainActivityIntent = new Intent(this, MainActivity.class);
-            mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(mainActivityIntent);
+                showLoadingDialog();
+              loginViewModel.getConfig(this).observe(this, new Observer<StatusResource<Object>>() {
+                  @Override public void onChanged(final StatusResource<Object> objectStatusResource) {
+                      closeLoadingDialog();
+                      switch (objectStatusResource.status){
+                          case SUCCESS:
+                              Toast.makeText(LoginActivity.this, getString(R.string.success), Toast.LENGTH_SHORT).show();
+                              loginViewModel.setHostName(LoginActivity.this,bubbleName.getText().toString().trim());
+                              Log.d("TAG", "Success");
+                              final Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
+                              mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                              startActivity(mainActivityIntent);
+                              break;
+                          case LOADING:
+                              break;
+                          case ERROR:
+                              break;
+                      }
+                  }
+              });
         } else {
             Toast.makeText(this, getString(R.string.cerificate_install), Toast.LENGTH_LONG).show();
         }

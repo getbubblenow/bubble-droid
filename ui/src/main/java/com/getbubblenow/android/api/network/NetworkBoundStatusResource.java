@@ -1,5 +1,7 @@
 package com.getbubblenow.android.api.network;
 
+import android.content.Context;
+
 import com.getbubblenow.android.resource.StatusResource;
 import com.getbubblenow.android.resource.StatusResource;
 

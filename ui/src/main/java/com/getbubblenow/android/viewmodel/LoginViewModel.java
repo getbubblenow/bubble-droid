@@ -14,7 +14,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class LoginViewModel extends ViewModel {
-    public LiveData<StatusResource<User>> login(String username, String password, Context context) {
+    public LiveData<StatusResource<byte[]>> login(String username, String password, Context context) {
         return DataRepository.getRepositoryInstance().login(username, password, context);
     }
 
@@ -41,5 +41,9 @@ public class LoginViewModel extends ViewModel {
 
     public void setHostName(Context context, String hostname){
         DataRepository.getRepositoryInstance().setHostName(context,hostname);
+    }
+
+    public MutableLiveData<StatusResource<Object>> getConfig(Context context) {
+        return DataRepository.getRepositoryInstance().getConfig(context);
     }
 }

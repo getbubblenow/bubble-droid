@@ -11,22 +11,26 @@ public class StatusResource<T> {
     @Nullable
     public final String message;
 
+    @Nullable
+    public final T data;
 
-    private StatusResource(@NonNull Status status, @Nullable String message) {
+
+    private StatusResource(@NonNull Status status, @Nullable String message, @Nullable T data) {
         this.status = status;
         this.message = message;
+        this.data = data;
     }
 
 
-    public static <T> StatusResource<T> success() {
-        return new StatusResource<>(Status.SUCCESS,null);
+    public static <T> StatusResource<T> success(T data) {
+        return new StatusResource<>(Status.SUCCESS,null,data);
     }
 
     public static <T> StatusResource<T> error(String msg) {
-        return new StatusResource<>(Status.ERROR,msg);
+        return new StatusResource<>(Status.ERROR,msg,null);
     }
 
     public static <T> StatusResource<T> loading() {
-        return new StatusResource<>(Status.LOADING,null);
+        return new StatusResource<>(Status.LOADING,null,null);
     }
 }

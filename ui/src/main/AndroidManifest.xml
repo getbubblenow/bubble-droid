@@ -28,7 +28,7 @@
         android:protectionLevel="dangerous" />
 
     <application
-        android:name="com.getbubblenow.android.Application"
+        android:name=".Application"
         android:allowBackup="false"
         android:banner="@mipmap/banner"
         android:icon="@mipmap/app_icon"
@@ -36,7 +36,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/BubbleTheme">
-        <activity android:name="com.getbubblenow.android.activity.MainActivity"
+        <activity android:name=".activity.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,7 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.getbubblenow.android.activity.LoginActivity"
+        <activity android:name=".activity.LoginActivity"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.TunnelToggleActivity"
