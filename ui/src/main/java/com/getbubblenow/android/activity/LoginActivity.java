@@ -46,6 +46,7 @@ public class LoginActivity extends BaseActivityBubble {
     private static final String USER_NAME_KEY = "userName";
     private static final String PASSWORD_KEY = "password";
     private static final String NO_INTERNET_CONNECTION = "no internet connection";
+    private static final String LOGIN_FAILED = "Login Failed";
 
 
     @Override
@@ -182,25 +183,6 @@ public class LoginActivity extends BaseActivityBubble {
                         intent.putExtra(KeyChain.EXTRA_CERTIFICATE, userStatusResource.data);
                         intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
                         startActivityForResult(intent, REQUEST_CODE);
-
-//                        loginViewModel.getCertificate(LoginActivity.this).observe(LoginActivity.this, new Observer<byte[]>() {
-//                            @Override public void onChanged(final byte[] encodedCertificate) {
-//                                closeLoadingDialog();
-//                                //TODO change implementation login function, function has be return certificate data
-//                                if (encodedCertificate.length == 0) {
-//                                    Toast.makeText(LoginActivity.this, getString(R.string.failed_bubble), Toast.LENGTH_SHORT).show();
-//                                }
-//                                else if(encodedCertificate.length == 1){
-//                                    showNetworkNotAvailableMessage();
-//                                }
-//                                else {
-//                                    final Intent intent = KeyChain.createInstallIntent();
-//                                    intent.putExtra(KeyChain.EXTRA_CERTIFICATE, encodedCertificate);
-//                                    intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-//                                    startActivityForResult(intent, REQUEST_CODE);
-//                                }
-//                            }
-//                        });
                         break;
                     case LOADING:
                         Log.d("TAG", "Loading");
@@ -209,6 +191,9 @@ public class LoginActivity extends BaseActivityBubble {
                         closeLoadingDialog();
                         if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
                             showNetworkNotAvailableMessage();
+                        }
+                        else if(userStatusResource.message.equals(LOGIN_FAILED)){
+                            Toast.makeText(LoginActivity.this,LOGIN_FAILED,Toast.LENGTH_LONG).show();
                         }
                         else {
                             showErrorDialog(userStatusResource.message);
@@ -238,6 +223,15 @@ public class LoginActivity extends BaseActivityBubble {
                           case LOADING:
                               break;
                           case ERROR:
+                              if(objectStatusResource.message.equals(NO_INTERNET_CONNECTION)){
+                                  showNetworkNotAvailableMessage();
+                              }
+                              else if(objectStatusResource.message.equals(LOGIN_FAILED)){
+                                  Toast.makeText(LoginActivity.this,LOGIN_FAILED,Toast.LENGTH_LONG).show();
+                              }
+                              else {
+                                  showErrorDialog(objectStatusResource.message);
+                              }
                               break;
                       }
                   }
