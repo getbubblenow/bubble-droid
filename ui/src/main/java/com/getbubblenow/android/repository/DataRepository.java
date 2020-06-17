@@ -291,7 +291,7 @@ public class DataRepository {
         }.getMutableLiveData();
     }
 
-    public MutableLiveData<StatusResource<Object>> getConfig(Context context) {
+    public MutableLiveData<StatusResource<Object>> createTunnel(Context context) {
        return new NetworkBoundStatusResource<Object>(){
 
            @Override protected void createCall() {

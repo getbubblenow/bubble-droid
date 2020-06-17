@@ -21,10 +21,6 @@ import com.getbubblenow.android.R;
 import com.getbubblenow.android.repository.DataRepository;
 import com.getbubblenow.android.resource.StatusResource;
 import com.getbubblenow.android.viewmodel.LoginViewModel;
-import com.getbubblenow.android.model.User;
-import com.getbubblenow.android.repository.DataRepository;
-import com.getbubblenow.android.resource.StatusResource;
-import com.getbubblenow.android.viewmodel.LoginViewModel;
 
 public class LoginActivity extends BaseActivityBubble {
 
@@ -208,7 +204,7 @@ public class LoginActivity extends BaseActivityBubble {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
                 showLoadingDialog();
-              loginViewModel.getConfig(this).observe(this, new Observer<StatusResource<Object>>() {
+              loginViewModel.createTunnel(this).observe(this, new Observer<StatusResource<Object>>() {
                   @Override public void onChanged(final StatusResource<Object> objectStatusResource) {
                       closeLoadingDialog();
                       switch (objectStatusResource.status){

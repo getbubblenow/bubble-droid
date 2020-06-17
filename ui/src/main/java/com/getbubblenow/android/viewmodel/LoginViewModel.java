@@ -4,10 +4,6 @@ import android.content.Context;
 
 import com.getbubblenow.android.repository.DataRepository;
 import com.getbubblenow.android.resource.StatusResource;
-import com.getbubblenow.android.model.User;
-import com.getbubblenow.android.repository.DataRepository;
-import com.getbubblenow.android.resource.StatusResource;
-import com.getbubblenow.android.util.UserStore;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -39,7 +35,7 @@ public class LoginViewModel extends ViewModel {
         DataRepository.getRepositoryInstance().setHostName(context,hostname);
     }
 
-    public MutableLiveData<StatusResource<Object>> getConfig(Context context) {
-        return DataRepository.getRepositoryInstance().getConfig(context);
+    public MutableLiveData<StatusResource<Object>> createTunnel(Context context) {
+        return DataRepository.getRepositoryInstance().createTunnel(context);
     }
 }
