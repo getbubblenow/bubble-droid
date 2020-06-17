@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
-import android.util.Pair;
 import android.widget.Toast;
 
 import com.getbubblenow.android.Application;
@@ -18,6 +17,7 @@ import com.getbubblenow.android.api.ApiConstants;
 import com.getbubblenow.android.api.network.ClientApi;
 import com.getbubblenow.android.api.network.ClientService;
 import com.getbubblenow.android.api.network.NetworkBoundStatusResource;
+import com.getbubblenow.android.util.UtilKt;
 import com.wireguard.android.backend.GoBackend;
 import com.wireguard.android.backend.Tunnel;
 import com.wireguard.android.backend.Tunnel.State;
@@ -31,8 +31,6 @@ import com.wireguard.config.Config;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,7 +42,6 @@ import javax.security.cert.CertificateException;
 import javax.security.cert.X509Certificate;
 
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -64,7 +61,6 @@ public class DataRepository {
     private ClientApi clientApi;
     private CompositeDisposable compositeDisposable;
     private final OkHttpClient client = new OkHttpClient();
-    private TunnelManager tunnelManager;
     private ObservableTunnel pendingTunnel;
 
     private static final String SEPARATOR = ":";
@@ -84,7 +80,7 @@ public class DataRepository {
         BASE_URL = url;
         clientApi = ClientService.getInstance().createClientApi(url);
         compositeDisposable = new CompositeDisposable();
-        tunnelManager = new TunnelManager(new FileConfigStore(context));
+        Application.setTunnelManager(new TunnelManager(new FileConfigStore(context)));
     }
 
     public static void buildRepositoryInstance(Context context, String url) {
@@ -322,7 +318,7 @@ public class DataRepository {
                                Application.getTunnelManager().create(TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
                                    if (observableTunnel != null) {
                                        TunnelStore.getInstance(context).setTunnel(TUNNEL_NAME, data);
-                                       tunnelManager.setTunnelState(observableTunnel, State.DOWN);
+                                       Application.getTunnelManager().setTunnelState(observableTunnel, State.DOWN);
                                        UserStore.getInstance(context).setToken(token);
                                        UserStore.getInstance(context).setDevice(deviceName, deviceID);
                                        postMutableLiveData(StatusResource.success(null));
@@ -405,12 +401,12 @@ public class DataRepository {
         final String name = TunnelStore.getInstance(context).getTunnelName();
         final ObservableTunnel tunnel;
         if (stateTunnel) {
-            tunnel = new ObservableTunnel(tunnelManager, name, config, State.UP);
+            tunnel = new ObservableTunnel(Application.getTunnelManager(), name, config, State.UP);
         } else {
-            tunnel = new ObservableTunnel(tunnelManager, name, config, State.DOWN);
+            tunnel = new ObservableTunnel(Application.getTunnelManager(), name, config, State.DOWN);
         }
-        tunnelManager.setTunnelState(tunnel, tunnel.getState());
-
+//        Application.getTunnelManager().setTunnelState(tunnel, tunnel.getState());
+        pendingTunnel = tunnel;
         return tunnel;
     }
 
@@ -419,10 +415,11 @@ public class DataRepository {
     }
 
     public ObservableTunnel getTunnel(Context context, boolean connectionStateFlag) {
-        ObservableTunnel tunnel = tunnelManager.getLastUsedTunnel();
+        ObservableTunnel tunnel = Application.getTunnelManager().getLastUsedTunnel();
         if (tunnel == null) {
             tunnel = createTunnel(context, connectionStateFlag);
         }
+        pendingTunnel = tunnel;
         return tunnel;
     }
 
@@ -575,5 +572,15 @@ public class DataRepository {
     public void removeSharedPreferences(Context context){
         context.getSharedPreferences(UserStore.USER_SHARED_PREF,0).edit().clear().apply();
         context.getSharedPreferences(TunnelStore.TUNNEL_SHARED_PREF,0).edit().clear().apply();
+    }
+
+    public void deleteTunnel(Context context){
+        ArrayList<ObservableTunnel> tunnels = new ArrayList<>();
+        tunnels.add(pendingTunnel);
+//        UtilKt.deleteTunnel(tunnels);
+        Application.getTunnelManager().delete(pendingTunnel);
+//        ArrayList<ObservableTunnel> tunnels = new ArrayList<>();
+//        tunnels.add(tunnelManager.getLastUsedTunnel());
+//        UtilKt.deleteTunnel(tunnels);
     }
 }

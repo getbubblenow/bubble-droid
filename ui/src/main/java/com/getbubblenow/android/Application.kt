@@ -148,6 +148,11 @@ class Application : android.app.Application(), OnSharedPreferenceChangeListener 
 
         @JvmStatic
         fun getTunnelManager() = get().tunnelManager
+
+        @JvmStatic
+        fun setTunnelManager(tunnelManager: TunnelManager){
+            get().tunnelManager = tunnelManager
+        }
     }
 
     init {

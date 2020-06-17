@@ -109,4 +109,11 @@ class ObservableTunnel internal constructor(
 
 
     fun delete(): CompletionStage<Void> = manager.delete(this)
+
+    override fun equals(other: Any?): Boolean {
+        return if(other?.javaClass == ObservableTunnel::class.java){
+            this.name == (other as ObservableTunnel).name
+        }
+        else false
+    }
 }

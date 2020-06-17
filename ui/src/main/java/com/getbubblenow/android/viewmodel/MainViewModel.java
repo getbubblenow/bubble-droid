@@ -48,4 +48,8 @@ public class MainViewModel extends ViewModel {
     public void removeSharedPreferences(Context context){
         DataRepository.getRepositoryInstance().removeSharedPreferences(context);
     }
+
+    public void deleteTunnel(Context context){
+        DataRepository.getRepositoryInstance().deleteTunnel(context);
+    }
 }
