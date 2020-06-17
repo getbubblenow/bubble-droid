@@ -17,7 +17,6 @@ import com.getbubblenow.android.api.ApiConstants;
 import com.getbubblenow.android.api.network.ClientApi;
 import com.getbubblenow.android.api.network.ClientService;
 import com.getbubblenow.android.api.network.NetworkBoundStatusResource;
-import com.getbubblenow.android.util.UtilKt;
 import com.wireguard.android.backend.GoBackend;
 import com.wireguard.android.backend.Tunnel;
 import com.wireguard.android.backend.Tunnel.State;
@@ -48,10 +47,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import okio.Buffer;
 import retrofit2.Call;
 import retrofit2.HttpException;
@@ -60,7 +57,6 @@ public class DataRepository {
     private static volatile DataRepository instance;
     private ClientApi clientApi;
     private CompositeDisposable compositeDisposable;
-    private final OkHttpClient client = new OkHttpClient();
     private ObservableTunnel pendingTunnel;
 
     private static final String SEPARATOR = ":";
@@ -119,7 +115,7 @@ public class DataRepository {
                                 getAllDevices(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this,null);
+                            setErrorMessage(throwable,this);
                         });
                 compositeDisposable.add(disposableLogin);
             }
@@ -144,7 +140,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this,null);
+                            setErrorMessage(throwable,this);
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -222,7 +218,7 @@ public class DataRepository {
                                                 });
 //                                                getConfig(context);
                                             }, throwable -> {
-                                                setErrorMessage(throwable,this,null);
+                                                setErrorMessage(throwable,this);
                                                // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
                                     compositeDisposable.add(disposableAddDevice);
@@ -275,7 +271,7 @@ public class DataRepository {
                                                     });
 //                                                    getConfig(context);
                                                 }, throwable -> {
-                                                    setErrorMessage(throwable,this,null);
+                                                    setErrorMessage(throwable,this);
                                                    // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
                                         compositeDisposable.add(disposableAddDevice);
@@ -283,7 +279,7 @@ public class DataRepository {
                                 }
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this,null);
+                            setErrorMessage(throwable,this);
                          //   setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
@@ -292,27 +288,19 @@ public class DataRepository {
     }
 
     public MutableLiveData<StatusResource<Object>> createTunnel(Context context) {
-       return new NetworkBoundStatusResource<Object>(){
-
-           @Override protected void createCall() {
-               NetworkBoundStatusResource<Object> liveData = this;
-               Request request = new Request.Builder()
-                       .url(BASE_URL + ApiConstants.CONFIG_DEVICE_URL + deviceID + ApiConstants.CONFIG_VPN_URL)
-                       .addHeader(ApiConstants.AUTHORIZATION_HEADER, token)
-                       .build();
-
-               client.newCall(request).enqueue(new Callback() {
-                   @Override public void onFailure(final okhttp3.Call call, final IOException e) {
-                       setErrorMessage(e,liveData,null);
-                   }
-
-                   @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
-                       if(response.isSuccessful()) {
-                           final InputStream inputStream = response.body().byteStream();
+        return new NetworkBoundStatusResource<Object>() {
+            @Override protected void createCall() {
+                NetworkBoundStatusResource<Object> liveData = this;
+                final HashMap<String, String> header = new HashMap<>();
+                header.put(ApiConstants.AUTHORIZATION_HEADER, token);
+               final Disposable configDisposable = clientApi.getConfig(deviceID,header)
+                        .subscribeOn(Schedulers.newThread())
+                       .observeOn(AndroidSchedulers.mainThread())
+                       .subscribe(dataConfig->{
+                           final InputStream inputStream = dataConfig.byteStream();
                            final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                            final String data = scanner.hasNext() ? scanner.next() : "";
-
-                           try {
+                               try {
                                final byte[] configBytes = data.getBytes();
                                final Config config = Config.parse(new ByteArrayInputStream(configBytes));
                                Application.getTunnelManager().create(TUNNEL_NAME, config).whenComplete((observableTunnel, throwable) -> {
@@ -323,20 +311,19 @@ public class DataRepository {
                                        UserStore.getInstance(context).setDevice(deviceName, deviceID);
                                        postMutableLiveData(StatusResource.success(null));
                                    } else {
-                                       setErrorMessage(throwable, liveData, response);
+                                       setErrorMessage(throwable, liveData);
                                    }
                                });
                            } catch (Exception e) {
-                               setErrorMessage(e, liveData, response);
+                               setErrorMessage(e, liveData);
                            }
-                       }
-                       else {
-                           setErrorMessage(null, liveData, response);
-                       }
-                   }
-               });
-           }
-       }.getMutableLiveData();
+
+                       },throwable -> {
+                           setErrorMessage(throwable,liveData);
+                       });
+               compositeDisposable.add(configDisposable);
+            }
+        }.getMutableLiveData();
     }
 
 
@@ -423,22 +410,15 @@ public class DataRepository {
         return tunnel;
     }
 
-    public MutableLiveData<StatusResource<byte[]>> getCertificate(Context context) {
-       return new NetworkBoundStatusResource<byte[]>(){
-
-           @Override protected void createCall() {
-               final NetworkBoundStatusResource<byte[]> liveData = this;
-               final Request request = new Request.Builder()
-                       .url(BASE_URL + ApiConstants.CERTIFICATE_URL)
-                       .build();
-               client.newCall(request).enqueue(new Callback() {
-                   @Override public void onFailure(final okhttp3.Call call, final IOException e) {
-                       setErrorMessage(e, liveData,null);
-                   }
-
-                   @Override public void onResponse(final okhttp3.Call call, final Response response) throws IOException {
-                       if (response.isSuccessful()) {
-                           final InputStream inputStream = response.body().byteStream();
+    private MutableLiveData<StatusResource<byte[]>> getCertificate(Context context) {
+        return new NetworkBoundStatusResource<byte[]>() {
+            NetworkBoundStatusResource<byte[]> liveData = this;
+            @Override protected void createCall() {
+            final Disposable certificateDisposable = clientApi.getCertificate()
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(certificate->{
+                            final InputStream inputStream = certificate.byteStream();
                            final Scanner scanner = new Scanner(inputStream).useDelimiter(DELIMITER);
                            final String data = scanner.hasNext() ? scanner.next() : "";
                            final byte[] cert = data.getBytes();
@@ -446,22 +426,21 @@ public class DataRepository {
                            try {
                                x509Certificate = X509Certificate.getInstance(cert);
                            } catch (final CertificateException e) {
-                               setErrorMessage(e, liveData,response);
+                               setErrorMessage(e, liveData);
                            }
                            try {
                                if (x509Certificate != null) {
                                    liveData.postMutableLiveData(StatusResource.success(x509Certificate.getEncoded()));
                                }
                            } catch (final CertificateEncodingException e) {
-                               setErrorMessage(e, liveData,response);
+                               setErrorMessage(e, liveData);
                            }
-                       } else {
-                           setErrorMessage(null, liveData,response);
-                       }
-                   }
-               });
-           }
-       }.getMutableLiveData();
+                        },throwable -> {
+                            setErrorMessage(throwable,liveData);
+                        });
+            compositeDisposable.add(certificateDisposable);
+            }
+        }.getMutableLiveData();
     }
 
     public boolean isVPNConnected(Context context, boolean connectionStateFlag) {
@@ -519,8 +498,7 @@ public class DataRepository {
         return UserStore.getInstance(context).getHostname();
     }
 
-    private <T> void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<T> liveData , Response response){
-        if(response==null) {
+    private <T> void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<T> liveData){
             if (throwable instanceof IOException) {
                 liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
             }
@@ -539,23 +517,6 @@ public class DataRepository {
                     liveData.postMutableLiveData(StatusResource.error(LOGIN_FAILED));
                 }
             }
-        }
-        else {
-            if (response.code() == 500) {
-                final String requestURL = response.request().url().toString();
-                final String requestMethod = response.request().method();
-                final String requestBody = bodyToString(response.request());
-                //TODO get stackTrace
-                final String stackTrace = "";
-                final String message = "URL:" + requestURL + '\n' +
-                        "BODY:" + requestBody + '\n' +
-                        "METHOD:" + requestMethod + '\n' +
-                        "STACK_TRACE:" + stackTrace;
-                liveData.postMutableLiveData(StatusResource.error(message));
-            } else {
-                liveData.postMutableLiveData(StatusResource.error(LOGIN_FAILED));
-            }
-        }
     }
 
     private String bodyToString(final Request request){

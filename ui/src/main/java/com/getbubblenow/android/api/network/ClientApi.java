@@ -10,12 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Single;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 
 /**
@@ -31,4 +33,10 @@ public interface ClientApi {
 
     @PUT(ApiConstants.ADD_DEVICE_URL)
     Single<Device> addDevice(@HeaderMap HashMap<String,String> header , @Body HashMap<String,String> body);
+
+    @GET(ApiConstants.CERTIFICATE_URL)
+    Single<ResponseBody> getCertificate();
+
+    @GET(ApiConstants.CONFIG_DEVICE_URL+"{deviceID}"+ApiConstants.CONFIG_VPN_URL)
+    Single<ResponseBody> getConfig(@Path("deviceID") String deviceID , @HeaderMap HashMap<String,String> header);
 }
