@@ -163,6 +163,7 @@
         android:layout_marginTop="@dimen/margin_top"
         android:layout_marginEnd="@dimen/margin_start_and_end"
         android:background="@drawable/rectangle"
+        android:inputType="textPassword"
         android:hint="@string/your_password"
         android:textAlignment="center"
         android:textColor="@color/black"
