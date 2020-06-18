@@ -5,19 +5,19 @@
 
     <data>
 
-        <import type="com.wireguard.android.util.ClipboardUtils" />
+        <import type="com.getbubblenow.android.util.ClipboardUtils" />
 
-        <import type="com.wireguard.android.widget.KeyInputFilter" />
+        <import type="com.getbubblenow.android.widget.KeyInputFilter" />
 
-        <import type="com.wireguard.android.widget.NameInputFilter" />
+        <import type="com.getbubblenow.android.widget.NameInputFilter" />
 
         <variable
             name="fragment"
-            type="com.wireguard.android.fragment.TunnelEditorFragment" />
+            type="com.getbubblenow.android.fragment.TunnelEditorFragment" />
 
         <variable
             name="config"
-            type="com.wireguard.android.viewmodel.ConfigProxy" />
+            type="com.getbubblenow.android.viewmodel.ConfigProxy" />
 
         <variable
             name="name"
@@ -115,7 +115,7 @@
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/private_key_text_layout">
 
-                            <com.wireguard.android.widget.MonkeyedTextInputEditText
+                            <com.getbubblenow.android.widget.MonkeyedTextInputEditText
                                 android:id="@+id/public_key_text"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
                             app:layout_constraintStart_toEndOf="@id/addresses_label_layout"
                             app:layout_constraintTop_toBottomOf="@id/public_key_label_layout">
 
-                            <com.wireguard.android.widget.MonkeyedTextInputEditText
+                            <com.getbubblenow.android.widget.MonkeyedTextInputEditText
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="@string/hint_random"
@@ -200,7 +200,7 @@
                             app:layout_constraintStart_toEndOf="@id/dns_servers_label_layout"
                             app:layout_constraintTop_toBottomOf="@id/addresses_label_layout">
 
-                            <com.wireguard.android.widget.MonkeyedTextInputEditText
+                            <com.getbubblenow.android.widget.MonkeyedTextInputEditText
                                 android:id="@+id/mtu_text"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"

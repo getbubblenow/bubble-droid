@@ -24,7 +24,7 @@ android {
     dataBinding.enabled true
     viewBinding.enabled true
     defaultConfig {
-        applicationId 'com.wireguard.android'
+        applicationId 'com.getbubblenow.android'
         minSdkVersion 21
         targetSdkVersion 29
         versionCode wireguardVersionCode
