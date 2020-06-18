@@ -17,4 +17,15 @@
     <dimen name="bubble_connection_title_text_size">30sp</dimen>
     <dimen name="icons_size">90dp</dimen>
     <dimen name="toast_text_size">14sp</dimen>
+    <dimen name="error_title_marginTop">30dp</dimen>
+    <dimen name="error_image_width">420dp</dimen>
+    <dimen name="error_image_height">400dp</dimen>
+    <dimen name="error_image_marginTop">230dp</dimen>
+    <dimen name="top_bubble_image_marginTop">24dp</dimen>
+    <dimen name="signIn_title_marginTop">32dp</dimen>
+    <dimen name="bubble_connection_marginTop">32dp</dimen>
+    <dimen name="union_width">450dp</dimen>
+    <dimen name="union_height">770dp</dimen>
+    <dimen name="union_marginBottom">8dp</dimen>
+    <dimen name="myBubble_text_size">16sp</dimen>
 </resources>
