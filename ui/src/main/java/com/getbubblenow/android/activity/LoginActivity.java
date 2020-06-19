@@ -3,7 +3,6 @@ package com.getbubblenow.android.activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatButton;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -66,7 +65,7 @@ public class LoginActivity extends BaseActivityBubble {
                 final String usernameInput = userName.getText().toString().trim();
                 final String passwordInput = password.getText().toString().trim();
                 showLoadingDialog();
-                loginViewModel.getNodeLiveData().observe(LoginActivity.this, new Observer<StatusResource<byte[]>>() {
+                loginViewModel.login(LoginActivity.this,usernameInput,passwordInput).observe(LoginActivity.this, new Observer<StatusResource<byte[]>>() {
                     @Override public void onChanged(final StatusResource<byte[]> stringStatusResource) {
                         switch (stringStatusResource.status) {
                             case SUCCESS:
@@ -74,7 +73,6 @@ public class LoginActivity extends BaseActivityBubble {
                                 final Intent intent = KeyChain.createInstallIntent();
                                 intent.putExtra(KeyChain.EXTRA_CERTIFICATE, stringStatusResource.data);
                                 intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-                                loginViewModel.setNodeLiveData(new MutableLiveData<>());
                                 startActivityForResult(intent, REQUEST_CODE);
                                 break;
                             case LOADING:
@@ -93,7 +91,6 @@ public class LoginActivity extends BaseActivityBubble {
                         }
                     }
                 });
-                DataRepository.getRepositoryInstance().login(LoginActivity.this,usernameInput,passwordInput);
             }
         });
         userNameStateListener();

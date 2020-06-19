@@ -76,17 +76,8 @@ public class DataRepository {
     private static String token = "";
     private static String deviceName;
     private static String deviceID;
-    private MutableLiveData<StatusResource<byte[]>> nodeLiveData = new MutableLiveData<>();
     private List<String> nodes;
     private int nodeIndex = 0;
-
-    public MutableLiveData<StatusResource<byte[]>> getNodeLiveData() {
-        return nodeLiveData;
-    }
-
-    public void setNodeLiveData(final MutableLiveData<StatusResource<byte[]>> nodeLiveData) {
-        this.nodeLiveData = nodeLiveData;
-    }
 
     private DataRepository(Context context, String url) {
         BASE_URL = url;
@@ -114,17 +105,17 @@ public class DataRepository {
         return instance;
     }
 
-    private void getNodeIndex(int index, String username , String password, Context context){
+    private void getNodeIndex(int index, String username , String password, Context context,NetworkBoundStatusResource<byte[]> liveData){
         if(index<nodes.size())
         {
-            getNetwork(nodes.get(index),username,password,context);
+            getNetwork(nodes.get(index),username,password,context,liveData);
         }
         else {
-            nodeLiveData.postValue(StatusResource.error(LOGIN_FAILED));
+            liveData.postMutableLiveData(StatusResource.error(LOGIN_FAILED));
         }
     }
 
-    private void getNetwork(String node, String username , String password, Context context){
+    private void getNetwork(String node, String username , String password, Context context,NetworkBoundStatusResource<byte[]> liveData){
 
                 HashMap<String, String> data = new HashMap<>();
                 data.put(ApiConstants.USERNAME, username);
@@ -150,17 +141,17 @@ public class DataRepository {
                                                 setHostName(context,BASE_URL);
                                                 buildClientService(BASE_URL_PREFIX + BASE_URL + BASE_URL_SUFFIX);
                                                 setUserURL(context, BASE_URL_PREFIX + BASE_URL + BASE_URL_SUFFIX);
-                                                login(username,password,context);
+                                                login(username,password,context,liveData);
                                                 break;
                                             }
                                         }
                                     }, throwable -> {
                                         Log.d("ERR", "getNodeBaseURI");
-                                        getNodeIndex(nodeIndex++,username,password,context);
+                                        getNodeIndex(nodeIndex++,username,password,context,liveData);
                                     });
                             compositeDisposable.add(getNodeBaseURIDisposable);
                         }, throwable -> {
-                            getNodeIndex(nodeIndex++,username,password,context);
+                            getNodeIndex(nodeIndex++,username,password,context,liveData);
                             Log.d("ERR", "getSages-login");
                         });
                 compositeDisposable.add(disposableLogin);
@@ -168,22 +159,26 @@ public class DataRepository {
     }
 
 
-    public void login(Context context, String username, String password){
+    public MutableLiveData<StatusResource<byte[]>> login(Context context, String username, String password){
+            return new NetworkBoundStatusResource<byte[]>(){
 
-                Disposable sagesDisposable =  clientApi.getSages()
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(sages -> {
-                            nodes = sages.getSages();
-                            getNodeIndex(nodeIndex,username,password,context);
-                        },throwable -> {
-                            Log.d("ERR","getSages");
-                            setErrorMessage(throwable,nodeLiveData);
-                        });
-                compositeDisposable.add(sagesDisposable);
+                @Override protected void createCall() {
+                    Disposable sagesDisposable =  clientApi.getSages()
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(sages -> {
+                                nodes = sages.getSages();
+                                getNodeIndex(nodeIndex,username,password,context,this);
+                            },throwable -> {
+                                Log.d("ERR","getSages");
+                                setErrorMessage(throwable,this);
+                            });
+                    compositeDisposable.add(sagesDisposable);
+                }
+            }.getMutableLiveData();
     }
 
-    public MutableLiveData<StatusResource<byte[]>> login(String username, String password, Context context) {
+    public MutableLiveData<StatusResource<byte[]>> login(String username, String password, Context context, NetworkBoundStatusResource<byte[]> liveData) {
         return new NetworkBoundStatusResource<byte[]>() {
             @Override protected void createCall() {
                 HashMap<String, String> data = new HashMap<>();
@@ -200,7 +195,7 @@ public class DataRepository {
                                 getAllDevices(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,nodeLiveData);
+                            setErrorMessage(throwable,liveData);
                         });
                 compositeDisposable.add(disposableLogin);
             }
@@ -225,7 +220,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,nodeLiveData);
+                            setErrorMessage(throwable,liveData);
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -257,10 +252,10 @@ public class DataRepository {
                                             @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                 switch (statusResource.status){
                                                     case SUCCESS:
-                                                        postMutableLiveData(StatusResource.success(statusResource.data));
+                                                        liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                         break;
                                                     case ERROR:
-                                                        postMutableLiveData(StatusResource.error(statusResource.message));
+                                                        liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                         break;
                                                 }
                                             }
@@ -293,17 +288,17 @@ public class DataRepository {
                                                     @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                         switch (statusResource.status){
                                                             case SUCCESS:
-                                                                postMutableLiveData(StatusResource.success(statusResource.data));
+                                                                liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                                 break;
                                                             case ERROR:
-                                                                postMutableLiveData(StatusResource.error(statusResource.message));
+                                                                liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                                 break;
                                                         }
                                                     }
                                                 });
 //                                                getConfig(context);
                                             }, throwable -> {
-                                                setErrorMessage(throwable,nodeLiveData);
+                                                setErrorMessage(throwable,liveData);
                                                // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
                                     compositeDisposable.add(disposableAddDevice);
@@ -346,17 +341,17 @@ public class DataRepository {
                                                         @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                             switch (statusResource.status){
                                                                 case SUCCESS:
-                                                                    postMutableLiveData(StatusResource.success(statusResource.data));
+                                                                    liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                                     break;
                                                                 case ERROR:
-                                                                    postMutableLiveData(StatusResource.error(statusResource.message));
+                                                                    liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                                     break;
                                                             }
                                                         }
                                                     });
 //                                                    getConfig(context);
                                                 }, throwable -> {
-                                                    setErrorMessage(throwable,nodeLiveData);
+                                                    setErrorMessage(throwable,liveData);
                                                    // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
                                         compositeDisposable.add(disposableAddDevice);
@@ -364,7 +359,7 @@ public class DataRepository {
                                 }
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,nodeLiveData);
+                            setErrorMessage(throwable,liveData);
                          //   setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
@@ -396,15 +391,15 @@ public class DataRepository {
                                        UserStore.getInstance(context).setDevice(deviceName, deviceID);
                                        postMutableLiveData(StatusResource.success(null));
                                    } else {
-                                       setErrorMessage(throwable, nodeLiveData);
+                                       setErrorMessage(throwable, this);
                                    }
                                });
                            } catch (Exception e) {
-                               setErrorMessage(e, nodeLiveData);
+                               setErrorMessage(e, this);
                            }
 
                        },throwable -> {
-                           setErrorMessage(throwable,nodeLiveData);
+                           setErrorMessage(throwable,this);
                        });
                compositeDisposable.add(configDisposable);
             }
@@ -497,7 +492,6 @@ public class DataRepository {
 
     private MutableLiveData<StatusResource<byte[]>> getCertificate(Context context) {
         return new NetworkBoundStatusResource<byte[]>() {
-            NetworkBoundStatusResource<byte[]> liveData = this;
             @Override protected void createCall() {
             final Disposable certificateDisposable = clientApi.getCertificate()
                         .subscribeOn(Schedulers.newThread())
@@ -511,17 +505,17 @@ public class DataRepository {
                            try {
                                x509Certificate = X509Certificate.getInstance(cert);
                            } catch (final CertificateException e) {
-                               setErrorMessage(e, nodeLiveData);
+                               setErrorMessage(e, this);
                            }
                            try {
                                if (x509Certificate != null) {
-                                   nodeLiveData.postValue(StatusResource.success(x509Certificate.getEncoded()));
+                                   postMutableLiveData(StatusResource.success(x509Certificate.getEncoded()));
                                }
                            } catch (final CertificateEncodingException e) {
-                               setErrorMessage(e, nodeLiveData);
+                               setErrorMessage(e, this);
                            }
                         },throwable -> {
-                            setErrorMessage(throwable,nodeLiveData);
+                            setErrorMessage(throwable,this);
                         });
             compositeDisposable.add(certificateDisposable);
             }
@@ -583,9 +577,9 @@ public class DataRepository {
         return UserStore.getInstance(context).getHostname();
     }
 
-    private <T> void setErrorMessage(Throwable throwable , MutableLiveData<StatusResource<byte[]>> liveData){
+    private <T> void setErrorMessage(Throwable throwable , NetworkBoundStatusResource<T> liveData){
             if (throwable instanceof IOException) {
-                liveData.postValue(StatusResource.error(NO_INTERNET_CONNECTION));
+                liveData.postMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
             }
             if (throwable instanceof HttpException) {
                 if (((HttpException) throwable).code() == 500) {
@@ -597,9 +591,9 @@ public class DataRepository {
                             "BODY:" + requestBody + '\n' +
                             "METHOD:" + requestMethod + '\n' +
                             "STACK_TRACE:" + stackTrace;
-                    liveData.postValue(StatusResource.error(message));
+                    liveData.postMutableLiveData(StatusResource.error(message));
                 } else {
-                    liveData.postValue(StatusResource.error(LOGIN_FAILED));
+                    liveData.postMutableLiveData(StatusResource.error(LOGIN_FAILED));
                 }
             }
     }
