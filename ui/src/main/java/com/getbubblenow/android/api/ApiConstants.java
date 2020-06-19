@@ -1,6 +1,10 @@
 package com.getbubblenow.android.api;
 
 public class ApiConstants {
+    public static final String BOOTSTRAP_URL = "https://raw.githubusercontent.com/getbubblenow/";
+    public static final String BOOTSTRAP_URL_SUFFIX = "bubble-config/master/boot.json";
+    public static String BASE_URL = "";
+    public static final String NODE_BASE_URI = "me/networks";
     public static final String LOGIN_URL = "auth/login";
     public static final String ALL_DEVICES_URL = "me/devices";
     public static final String ADD_DEVICE_URL = "me/devices";

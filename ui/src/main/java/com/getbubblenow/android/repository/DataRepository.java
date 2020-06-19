@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.getbubblenow.android.Application;
 import com.getbubblenow.android.R;
 import com.getbubblenow.android.configStore.FileConfigStore;
+import com.getbubblenow.android.model.Network;
 import com.getbubblenow.android.model.ObservableTunnel;
 import com.getbubblenow.android.model.TunnelManager;
 import com.getbubblenow.android.activity.MainActivity;
@@ -47,7 +49,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okio.Buffer;
 import retrofit2.Call;
@@ -68,9 +69,22 @@ public class DataRepository {
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
     private static final String NO_INTERNET_CONNECTION = "no internet connection";
     private static final String LOGIN_FAILED = "Login Failed";
+    private static final String URL_SUFFIX = "/api/";
+    private static final String RUNNING = "running";
     private static String token = "";
     private static String deviceName;
     private static String deviceID;
+    private MutableLiveData<StatusResource<String>> nodeLiveData = new MutableLiveData<>();
+    private List<String> nodes;
+    private int nodeIndex = 0;
+
+    public MutableLiveData<StatusResource<String>> getNodeLiveData() {
+        return nodeLiveData;
+    }
+
+    public void setNodeLiveData(final MutableLiveData<StatusResource<String>> nodeLiveData) {
+        this.nodeLiveData = nodeLiveData;
+    }
 
     private DataRepository(Context context, String url) {
         BASE_URL = url;
@@ -97,6 +111,76 @@ public class DataRepository {
     public static DataRepository getRepositoryInstance() {
         return instance;
     }
+
+    private void getNodeIndex(int index, String username , String password, Context context){
+        if(index<nodes.size())
+        {
+            getNetwork(nodes.get(index),username,password,context);
+        }
+        else {
+            nodeLiveData.postValue(StatusResource.error(LOGIN_FAILED));
+        }
+    }
+
+    private void getNetwork(String node, String username , String password, Context context){
+
+                HashMap<String, String> data = new HashMap<>();
+                data.put(ApiConstants.USERNAME, username);
+                data.put(ApiConstants.PASSWORD, password);
+                buildClientService(node + URL_SUFFIX);
+                Disposable disposableLogin = clientApi.login(data)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(user -> {
+                            token = user.getToken();
+                            ApiConstants.BASE_URL = node + URL_SUFFIX;
+                            buildClientService(ApiConstants.BASE_URL);
+                            final HashMap<String, String> header = new HashMap<>();
+                            header.put(ApiConstants.AUTHORIZATION_HEADER, token);
+                            Disposable getNodeBaseURIDisposable = clientApi.getNodeBaseURI(header)
+                                    .subscribeOn(Schedulers.newThread())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(networks -> {
+                                        for (Network network : networks) {
+                                            if (network.getState().equals(RUNNING)) {
+                                                ApiConstants.BASE_URL = network.getName() + "." + network.getDomainName();
+                                                BASE_URL = ApiConstants.BASE_URL;
+                                                nodeLiveData.postValue(StatusResource.success(BASE_URL));
+                                                break;
+                                            }
+                                        }
+                                    }, throwable -> {
+                                        Log.d("ERR", "getNodeBaseURI");
+                                        getNodeIndex(nodeIndex++,username,password,context);
+                                    });
+                            compositeDisposable.add(getNodeBaseURIDisposable);
+                        }, throwable -> {
+                            getNodeIndex(nodeIndex++,username,password,context);
+                            Log.d("ERR", "getSages-login");
+                        });
+                compositeDisposable.add(disposableLogin);
+
+    }
+
+    public MutableLiveData<StatusResource<String>> getSages(Context context, String username, String password){
+        return new NetworkBoundStatusResource<String>(){
+
+            @Override protected void createCall() {
+                Disposable sagesDisposable =  clientApi.getSages()
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(sages -> {
+                            nodes = sages.getSages();
+                            getNodeIndex(nodeIndex,username,password,context);
+                        },throwable -> {
+                            Log.d("ERR","getSages");
+                            setErrorMessage(throwable,this);
+                        });
+                compositeDisposable.add(sagesDisposable);
+            }
+        }.getMutableLiveData();
+    }
+
 
     public MutableLiveData<StatusResource<byte[]>> login(String username, String password, Context context) {
         return new NetworkBoundStatusResource<byte[]>() {

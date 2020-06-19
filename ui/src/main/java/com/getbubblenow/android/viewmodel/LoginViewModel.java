@@ -38,4 +38,16 @@ public class LoginViewModel extends ViewModel {
     public MutableLiveData<StatusResource<Object>> createTunnel(Context context) {
         return DataRepository.getRepositoryInstance().createTunnel(context);
     }
+
+    public MutableLiveData<StatusResource<String>> getNodeLiveData() {
+        return DataRepository.getRepositoryInstance().getNodeLiveData();
+    }
+
+    public void setNodeLiveData(final MutableLiveData<StatusResource<String>> nodeLiveData) {
+        DataRepository.getRepositoryInstance().setNodeLiveData(nodeLiveData);
+    }
+
+    public MutableLiveData<StatusResource<String>> getSages(Context context, String username, String password){
+        return DataRepository.getRepositoryInstance().getSages(context, username, password);
+    }
 }
