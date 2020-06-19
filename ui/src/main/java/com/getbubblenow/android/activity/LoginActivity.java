@@ -31,9 +31,6 @@ public class LoginActivity extends BaseActivityBubble {
     private EditText password;
     private AppCompatButton sign;
 
-    private static final String BASE_URL_PREFIX = "https://";
-    private static final String BASE_URL_SUFFIX = ":1443/api/";
-    private static final String SEPARATOR = "\\.";
     private static final int REQUEST_CODE = 1555;
     private static final String CERTIFICATE_NAME = "Bubble Certificate";
     private boolean userNameStateFlag = false;
@@ -42,7 +39,6 @@ public class LoginActivity extends BaseActivityBubble {
     private static final String PASSWORD_KEY = "password";
     private static final String NO_INTERNET_CONNECTION = "no internet connection";
     private static final String LOGIN_FAILED = "Login Failed";
-    private static  String bubbleName = "";
 
 
     @Override
@@ -70,52 +66,34 @@ public class LoginActivity extends BaseActivityBubble {
                 final String usernameInput = userName.getText().toString().trim();
                 final String passwordInput = password.getText().toString().trim();
                 showLoadingDialog();
-                loginViewModel.getNodeLiveData().observe(LoginActivity.this, new Observer<StatusResource<String>>() {
-                    @Override public void onChanged(final StatusResource<String> stringStatusResource) {
+                loginViewModel.getNodeLiveData().observe(LoginActivity.this, new Observer<StatusResource<byte[]>>() {
+                    @Override public void onChanged(final StatusResource<byte[]> stringStatusResource) {
                         switch (stringStatusResource.status) {
                             case SUCCESS:
-                                    final String url = stringStatusResource.data;
-                                    loginViewModel.buildClientService(BASE_URL_PREFIX + url + BASE_URL_SUFFIX);
-                                    loginViewModel.setUserURL(LoginActivity.this, BASE_URL_PREFIX + url + BASE_URL_SUFFIX);
-                                    bubbleName = url;
-                                    loginViewModel.setNodeLiveData(new MutableLiveData<>());
-                                    login(usernameInput, passwordInput);
+                                closeLoadingDialog();
+                                final Intent intent = KeyChain.createInstallIntent();
+                                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, stringStatusResource.data);
+                                intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
+                                loginViewModel.setNodeLiveData(new MutableLiveData<>());
+                                startActivityForResult(intent, REQUEST_CODE);
+                                break;
+                            case LOADING:
+                                Log.d("TAG", "Loading");
                                 break;
                             case ERROR:
                                 closeLoadingDialog();
                                 if (stringStatusResource.message.equals(NO_INTERNET_CONNECTION)) {
                                     showNetworkNotAvailableMessage();
-                                }
-                                else if (stringStatusResource.message.equals(LOGIN_FAILED)) {
+                                } else if (stringStatusResource.message.equals(LOGIN_FAILED)) {
                                     Toast.makeText(LoginActivity.this, LOGIN_FAILED, Toast.LENGTH_LONG).show();
-                                }
-                                else {
-                                    showErrorDialog(stringStatusResource.message);
-                                }
-                                break;
-                            case LOADING:
-                                break;
-                        }
-                    }
-                });
-                loginViewModel.getSages(LoginActivity.this,usernameInput,passwordInput).observe(LoginActivity.this, new Observer<StatusResource<String>>() {
-                    @Override public void onChanged(final StatusResource<String> stringStatusResource) {
-                        switch (stringStatusResource.status){
-                            case ERROR:
-                                closeLoadingDialog();
-                                if(stringStatusResource.message.equals(NO_INTERNET_CONNECTION)){
-                                    showNetworkNotAvailableMessage();
-                                }
-                                else if(stringStatusResource.message.equals(LOGIN_FAILED)){
-                                    Toast.makeText(LoginActivity.this,LOGIN_FAILED,Toast.LENGTH_LONG).show();
-                                }
-                                else {
+                                } else {
                                     showErrorDialog(stringStatusResource.message);
                                 }
                                 break;
                         }
                     }
                 });
+                DataRepository.getRepositoryInstance().login(LoginActivity.this,usernameInput,passwordInput);
             }
         });
         userNameStateListener();
@@ -184,37 +162,6 @@ public class LoginActivity extends BaseActivityBubble {
         }
     }
 
-    private void login(String username, String password) {
-        loginViewModel.login(username, password, this).observe(this, new Observer<StatusResource<byte[]>>() {
-            @Override public void onChanged(final StatusResource<byte[]> userStatusResource) {
-                switch (userStatusResource.status) {
-                    case SUCCESS:
-                        closeLoadingDialog();
-                        final Intent intent = KeyChain.createInstallIntent();
-                        intent.putExtra(KeyChain.EXTRA_CERTIFICATE, userStatusResource.data);
-                        intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-                        startActivityForResult(intent, REQUEST_CODE);
-                        break;
-                    case LOADING:
-                        Log.d("TAG", "Loading");
-                        break;
-                    case ERROR:
-                        closeLoadingDialog();
-                        if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
-                            showNetworkNotAvailableMessage();
-                        }
-                        else if(userStatusResource.message.equals(LOGIN_FAILED)){
-                            Toast.makeText(LoginActivity.this,LOGIN_FAILED,Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            showErrorDialog(userStatusResource.message);
-                        }
-                        break;
-                }
-            }
-        });
-    }
-
     @Override protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
@@ -225,7 +172,6 @@ public class LoginActivity extends BaseActivityBubble {
                       switch (objectStatusResource.status){
                           case SUCCESS:
                               Toast.makeText(LoginActivity.this, getString(R.string.success), Toast.LENGTH_SHORT).show();
-                              loginViewModel.setHostName(LoginActivity.this,bubbleName);
                               Log.d("TAG", "Success");
                               final Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
                               mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
