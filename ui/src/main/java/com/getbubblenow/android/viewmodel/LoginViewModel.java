@@ -10,9 +10,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class LoginViewModel extends ViewModel {
-    public LiveData<StatusResource<byte[]>> login(String username, String password, Context context) {
-        return DataRepository.getRepositoryInstance().login(username, password, context);
-    }
 
     @Override protected void onCleared() {
         super.onCleared();
@@ -37,5 +34,9 @@ public class LoginViewModel extends ViewModel {
 
     public MutableLiveData<StatusResource<Object>> createTunnel(Context context) {
         return DataRepository.getRepositoryInstance().createTunnel(context);
+    }
+
+    public MutableLiveData<StatusResource<byte[]>> login (Context context, String username, String password){
+       return DataRepository.getRepositoryInstance().login(context, username, password);
     }
 }

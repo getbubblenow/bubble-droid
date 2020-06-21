@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 import android.provider.Settings.Secure;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.getbubblenow.android.Application;
 import com.getbubblenow.android.R;
 import com.getbubblenow.android.configStore.FileConfigStore;
+import com.getbubblenow.android.model.Network;
 import com.getbubblenow.android.model.ObservableTunnel;
 import com.getbubblenow.android.model.TunnelManager;
 import com.getbubblenow.android.activity.MainActivity;
@@ -47,7 +49,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okio.Buffer;
 import retrofit2.Call;
@@ -68,9 +69,15 @@ public class DataRepository {
     private static final int REQUEST_CODE_VPN_PERMISSION = 23491;
     private static final String NO_INTERNET_CONNECTION = "no internet connection";
     private static final String LOGIN_FAILED = "Login Failed";
+    private static final String URL_SUFFIX = "/api/";
+    private static final String RUNNING = "running";
+    private static final String BASE_URL_PREFIX = "https://";
+    private static final String BASE_URL_SUFFIX = ":1443/api/";
     private static String token = "";
     private static String deviceName;
     private static String deviceID;
+    private List<String> nodes;
+    private int nodeIndex = 0;
 
     private DataRepository(Context context, String url) {
         BASE_URL = url;
@@ -98,7 +105,80 @@ public class DataRepository {
         return instance;
     }
 
-    public MutableLiveData<StatusResource<byte[]>> login(String username, String password, Context context) {
+    private void getNodeIndex(int index, String username , String password, Context context,NetworkBoundStatusResource<byte[]> liveData){
+        if(index<nodes.size())
+        {
+            getNetwork(nodes.get(index),username,password,context,liveData);
+        }
+        else {
+            liveData.postMutableLiveData(StatusResource.error(LOGIN_FAILED));
+        }
+    }
+
+    private void getNetwork(String node, String username , String password, Context context,NetworkBoundStatusResource<byte[]> liveData){
+
+                HashMap<String, String> data = new HashMap<>();
+                data.put(ApiConstants.USERNAME, username);
+                data.put(ApiConstants.PASSWORD, password);
+                buildClientService(node + URL_SUFFIX);
+                Disposable disposableLogin = clientApi.login(data)
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(user -> {
+                            token = user.getToken();
+                            ApiConstants.BASE_URL = node + URL_SUFFIX;
+                            buildClientService(ApiConstants.BASE_URL);
+                            final HashMap<String, String> header = new HashMap<>();
+                            header.put(ApiConstants.AUTHORIZATION_HEADER, token);
+                            Disposable getNodeBaseURIDisposable = clientApi.getNodeBaseURI(header)
+                                    .subscribeOn(Schedulers.newThread())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(networks -> {
+                                        for (Network network : networks) {
+                                            if (network.getState().equals(RUNNING)) {
+                                                ApiConstants.BASE_URL = network.getName() + "." + network.getDomainName();
+                                                BASE_URL = ApiConstants.BASE_URL;
+                                                setHostName(context,BASE_URL);
+                                                buildClientService(BASE_URL_PREFIX + BASE_URL + BASE_URL_SUFFIX);
+                                                setUserURL(context, BASE_URL_PREFIX + BASE_URL + BASE_URL_SUFFIX);
+                                                login(username,password,context,liveData);
+                                                break;
+                                            }
+                                        }
+                                    }, throwable -> {
+                                        Log.d("ERR", "getNodeBaseURI");
+                                        getNodeIndex(nodeIndex++,username,password,context,liveData);
+                                    });
+                            compositeDisposable.add(getNodeBaseURIDisposable);
+                        }, throwable -> {
+                            getNodeIndex(nodeIndex++,username,password,context,liveData);
+                            Log.d("ERR", "getSages-login");
+                        });
+                compositeDisposable.add(disposableLogin);
+
+    }
+
+
+    public MutableLiveData<StatusResource<byte[]>> login(Context context, String username, String password){
+            return new NetworkBoundStatusResource<byte[]>(){
+
+                @Override protected void createCall() {
+                    Disposable sagesDisposable =  clientApi.getSages()
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(sages -> {
+                                nodes = sages.getSages();
+                                getNodeIndex(nodeIndex,username,password,context,this);
+                            },throwable -> {
+                                Log.d("ERR","getSages");
+                                setErrorMessage(throwable,this);
+                            });
+                    compositeDisposable.add(sagesDisposable);
+                }
+            }.getMutableLiveData();
+    }
+
+    public MutableLiveData<StatusResource<byte[]>> login(String username, String password, Context context, NetworkBoundStatusResource<byte[]> liveData) {
         return new NetworkBoundStatusResource<byte[]>() {
             @Override protected void createCall() {
                 HashMap<String, String> data = new HashMap<>();
@@ -115,7 +195,7 @@ public class DataRepository {
                                 getAllDevices(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this);
+                            setErrorMessage(throwable,liveData);
                         });
                 compositeDisposable.add(disposableLogin);
             }
@@ -140,7 +220,7 @@ public class DataRepository {
                                 addDevice(context);
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this);
+                            setErrorMessage(throwable,liveData);
                         });
                 compositeDisposable.add(disposableAllDevices);
             }
@@ -172,10 +252,10 @@ public class DataRepository {
                                             @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                 switch (statusResource.status){
                                                     case SUCCESS:
-                                                        postMutableLiveData(StatusResource.success(statusResource.data));
+                                                        liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                         break;
                                                     case ERROR:
-                                                        postMutableLiveData(StatusResource.error(statusResource.message));
+                                                        liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                         break;
                                                 }
                                             }
@@ -208,17 +288,17 @@ public class DataRepository {
                                                     @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                         switch (statusResource.status){
                                                             case SUCCESS:
-                                                                postMutableLiveData(StatusResource.success(statusResource.data));
+                                                                liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                                 break;
                                                             case ERROR:
-                                                                postMutableLiveData(StatusResource.error(statusResource.message));
+                                                                liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                                 break;
                                                         }
                                                     }
                                                 });
 //                                                getConfig(context);
                                             }, throwable -> {
-                                                setErrorMessage(throwable,this);
+                                                setErrorMessage(throwable,liveData);
                                                // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                             });
                                     compositeDisposable.add(disposableAddDevice);
@@ -261,17 +341,17 @@ public class DataRepository {
                                                         @Override public void onChanged(final StatusResource<byte[]> statusResource) {
                                                             switch (statusResource.status){
                                                                 case SUCCESS:
-                                                                    postMutableLiveData(StatusResource.success(statusResource.data));
+                                                                    liveData.postMutableLiveData(StatusResource.success(statusResource.data));
                                                                     break;
                                                                 case ERROR:
-                                                                    postMutableLiveData(StatusResource.error(statusResource.message));
+                                                                    liveData.postMutableLiveData(StatusResource.error(statusResource.message));
                                                                     break;
                                                             }
                                                         }
                                                     });
 //                                                    getConfig(context);
                                                 }, throwable -> {
-                                                    setErrorMessage(throwable,this);
+                                                    setErrorMessage(throwable,liveData);
                                                    // setMutableLiveData(StatusResource.error(throwable.getMessage()));
                                                 });
                                         compositeDisposable.add(disposableAddDevice);
@@ -279,7 +359,7 @@ public class DataRepository {
                                 }
                             }
                         }, throwable -> {
-                            setErrorMessage(throwable,this);
+                            setErrorMessage(throwable,liveData);
                          //   setMutableLiveData(StatusResource.error(NO_INTERNET_CONNECTION));
                         });
                 compositeDisposable.add(disposableAllDevices);
@@ -311,15 +391,15 @@ public class DataRepository {
                                        UserStore.getInstance(context).setDevice(deviceName, deviceID);
                                        postMutableLiveData(StatusResource.success(null));
                                    } else {
-                                       setErrorMessage(throwable, liveData);
+                                       setErrorMessage(throwable, this);
                                    }
                                });
                            } catch (Exception e) {
-                               setErrorMessage(e, liveData);
+                               setErrorMessage(e, this);
                            }
 
                        },throwable -> {
-                           setErrorMessage(throwable,liveData);
+                           setErrorMessage(throwable,this);
                        });
                compositeDisposable.add(configDisposable);
             }
@@ -412,7 +492,6 @@ public class DataRepository {
 
     private MutableLiveData<StatusResource<byte[]>> getCertificate(Context context) {
         return new NetworkBoundStatusResource<byte[]>() {
-            NetworkBoundStatusResource<byte[]> liveData = this;
             @Override protected void createCall() {
             final Disposable certificateDisposable = clientApi.getCertificate()
                         .subscribeOn(Schedulers.newThread())
@@ -426,17 +505,17 @@ public class DataRepository {
                            try {
                                x509Certificate = X509Certificate.getInstance(cert);
                            } catch (final CertificateException e) {
-                               setErrorMessage(e, liveData);
+                               setErrorMessage(e, this);
                            }
                            try {
                                if (x509Certificate != null) {
-                                   liveData.postMutableLiveData(StatusResource.success(x509Certificate.getEncoded()));
+                                   postMutableLiveData(StatusResource.success(x509Certificate.getEncoded()));
                                }
                            } catch (final CertificateEncodingException e) {
-                               setErrorMessage(e, liveData);
+                               setErrorMessage(e, this);
                            }
                         },throwable -> {
-                            setErrorMessage(throwable,liveData);
+                            setErrorMessage(throwable,this);
                         });
             compositeDisposable.add(certificateDisposable);
             }

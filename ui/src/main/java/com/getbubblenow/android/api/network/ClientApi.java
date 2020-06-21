@@ -1,6 +1,8 @@
 package com.getbubblenow.android.api.network;
 
 import com.getbubblenow.android.model.Device;
+import com.getbubblenow.android.model.Network;
+import com.getbubblenow.android.model.Sages;
 import com.getbubblenow.android.model.User;
 import com.getbubblenow.android.api.ApiConstants;
 import com.getbubblenow.android.model.Device;
@@ -39,4 +41,10 @@ public interface ClientApi {
 
     @GET(ApiConstants.CONFIG_DEVICE_URL+"{deviceID}"+ApiConstants.CONFIG_VPN_URL)
     Single<ResponseBody> getConfig(@Path("deviceID") String deviceID , @HeaderMap HashMap<String,String> header);
+
+    @GET(ApiConstants.BOOTSTRAP_URL_SUFFIX)
+    Single<Sages> getSages();
+
+    @GET(ApiConstants.NODE_BASE_URI)
+    Single<List<Network>> getNodeBaseURI(@HeaderMap HashMap<String,String> header);
 }

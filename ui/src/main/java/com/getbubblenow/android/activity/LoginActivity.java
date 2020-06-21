@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.getbubblenow.android.R;
+import com.getbubblenow.android.api.ApiConstants;
 import com.getbubblenow.android.repository.DataRepository;
 import com.getbubblenow.android.resource.StatusResource;
 import com.getbubblenow.android.viewmodel.LoginViewModel;
@@ -25,20 +26,14 @@ import com.getbubblenow.android.viewmodel.LoginViewModel;
 public class LoginActivity extends BaseActivityBubble {
 
     private LoginViewModel loginViewModel;
-    private EditText bubbleName;
     private EditText userName;
     private EditText password;
     private AppCompatButton sign;
 
-    private static final String BASE_URL_PREFIX = "https://";
-    private static final String BASE_URL_SUFFIX = ":1443/api/";
-    private static final String SEPARATOR = "\\.";
     private static final int REQUEST_CODE = 1555;
     private static final String CERTIFICATE_NAME = "Bubble Certificate";
-    private boolean bubbleNameStateFlag = false;
     private boolean userNameStateFlag = false;
     private boolean passwordStateFlag = false;
-    private static final String BUBBLE_NAME_KEY = "bubbleName";
     private static final String USER_NAME_KEY = "userName";
     private static final String PASSWORD_KEY = "password";
     private static final String NO_INTERNET_CONNECTION = "no internet connection";
@@ -61,56 +56,51 @@ public class LoginActivity extends BaseActivityBubble {
     private void initListeners() {
         sign.setOnClickListener(new OnClickListener() {
             @Override public void onClick(final View v) {
-                final String url = BASE_URL_PREFIX + bubbleName.getText().toString() + BASE_URL_SUFFIX;
-                if (url.split(SEPARATOR).length != 3) {
-                    Toast.makeText(LoginActivity.this, getResources().getText(R.string.hostname_not_valid), Toast.LENGTH_LONG).show();
-                    return;
-                }
+
                 if (DataRepository.getRepositoryInstance() == null) {
-                    loginViewModel.buildRepositoryInstance(LoginActivity.this, url);
+                    loginViewModel.buildRepositoryInstance(LoginActivity.this, ApiConstants.BOOTSTRAP_URL);
                 } else {
-                    loginViewModel.buildClientService(url);
+                    loginViewModel.buildClientService(ApiConstants.BOOTSTRAP_URL);
                 }
-                loginViewModel.setUserURL(LoginActivity.this, url);
                 final String usernameInput = userName.getText().toString().trim();
                 final String passwordInput = password.getText().toString().trim();
                 showLoadingDialog();
-                login(usernameInput, passwordInput);
+                loginViewModel.login(LoginActivity.this,usernameInput,passwordInput).observe(LoginActivity.this, new Observer<StatusResource<byte[]>>() {
+                    @Override public void onChanged(final StatusResource<byte[]> stringStatusResource) {
+                        switch (stringStatusResource.status) {
+                            case SUCCESS:
+                                closeLoadingDialog();
+                                final Intent intent = KeyChain.createInstallIntent();
+                                intent.putExtra(KeyChain.EXTRA_CERTIFICATE, stringStatusResource.data);
+                                intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
+                                startActivityForResult(intent, REQUEST_CODE);
+                                break;
+                            case LOADING:
+                                Log.d("TAG", "Loading");
+                                break;
+                            case ERROR:
+                                closeLoadingDialog();
+                                if (stringStatusResource.message.equals(NO_INTERNET_CONNECTION)) {
+                                    showNetworkNotAvailableMessage();
+                                } else if (stringStatusResource.message.equals(LOGIN_FAILED)) {
+                                    Toast.makeText(LoginActivity.this, LOGIN_FAILED, Toast.LENGTH_LONG).show();
+                                } else {
+                                    showErrorDialog(stringStatusResource.message);
+                                }
+                                break;
+                        }
+                    }
+                });
             }
         });
-        bubbleNameStateListener();
         userNameStateListener();
         passwordStateListener();
     }
 
-
     private void initViews() {
-        bubbleName = findViewById(R.id.bubbleName);
         userName = findViewById(R.id.userName);
         password = findViewById(R.id.password);
         sign = findViewById(R.id.signButton);
-    }
-
-    private void bubbleNameStateListener() {
-        bubbleName.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
-
-            }
-
-            @Override public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
-
-            }
-
-            @Override public void afterTextChanged(final Editable s) {
-
-                if (bubbleName.getText().toString().trim().isEmpty()) {
-                    bubbleNameStateFlag = false;
-                } else {
-                    bubbleNameStateFlag = true;
-                }
-                setButtonState();
-            }
-        });
     }
 
     private void userNameStateListener() {
@@ -159,7 +149,7 @@ public class LoginActivity extends BaseActivityBubble {
     }
 
     private void setButtonState(){
-        if(userNameStateFlag && bubbleNameStateFlag && passwordStateFlag){
+        if(userNameStateFlag  && passwordStateFlag){
             sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_enable));
             sign.setEnabled(true);
         }
@@ -167,37 +157,6 @@ public class LoginActivity extends BaseActivityBubble {
             sign.setBackgroundDrawable(getDrawable(R.drawable.sign_in_disable));
             sign.setEnabled(false);
         }
-    }
-
-    private void login(String username, String password) {
-        loginViewModel.login(username, password, this).observe(this, new Observer<StatusResource<byte[]>>() {
-            @Override public void onChanged(final StatusResource<byte[]> userStatusResource) {
-                switch (userStatusResource.status) {
-                    case SUCCESS:
-                        closeLoadingDialog();
-                        final Intent intent = KeyChain.createInstallIntent();
-                        intent.putExtra(KeyChain.EXTRA_CERTIFICATE, userStatusResource.data);
-                        intent.putExtra(KeyChain.EXTRA_NAME, CERTIFICATE_NAME);
-                        startActivityForResult(intent, REQUEST_CODE);
-                        break;
-                    case LOADING:
-                        Log.d("TAG", "Loading");
-                        break;
-                    case ERROR:
-                        closeLoadingDialog();
-                        if(userStatusResource.message.equals(NO_INTERNET_CONNECTION)){
-                            showNetworkNotAvailableMessage();
-                        }
-                        else if(userStatusResource.message.equals(LOGIN_FAILED)){
-                            Toast.makeText(LoginActivity.this,LOGIN_FAILED,Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            showErrorDialog(userStatusResource.message);
-                        }
-                        break;
-                }
-            }
-        });
     }
 
     @Override protected void onActivityResult(final int requestCode, final int resultCode, @Nullable final Intent data) {
@@ -210,7 +169,6 @@ public class LoginActivity extends BaseActivityBubble {
                       switch (objectStatusResource.status){
                           case SUCCESS:
                               Toast.makeText(LoginActivity.this, getString(R.string.success), Toast.LENGTH_SHORT).show();
-                              loginViewModel.setHostName(LoginActivity.this,bubbleName.getText().toString().trim());
                               Log.d("TAG", "Success");
                               final Intent mainActivityIntent = new Intent(LoginActivity.this, MainActivity.class);
                               mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -238,14 +196,12 @@ public class LoginActivity extends BaseActivityBubble {
     }
 
     @Override protected void onSaveInstanceState(@NonNull final Bundle outState) {
-        outState.putBoolean(BUBBLE_NAME_KEY,bubbleNameStateFlag);
         outState.putBoolean(USER_NAME_KEY,userNameStateFlag);
         outState.putBoolean(PASSWORD_KEY,passwordStateFlag);
         super.onSaveInstanceState(outState);
     }
 
     @Override protected void onRestoreInstanceState(@NonNull final Bundle savedInstanceState) {
-        bubbleNameStateFlag = savedInstanceState.getBoolean(BUBBLE_NAME_KEY);
         userNameStateFlag = savedInstanceState.getBoolean(USER_NAME_KEY);
         passwordStateFlag = savedInstanceState.getBoolean(PASSWORD_KEY);
         super.onRestoreInstanceState(savedInstanceState);
